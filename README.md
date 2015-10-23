@@ -1,6 +1,6 @@
 # build-cli
 
-The **imp-cli** allows you to manage your Electric Imp development from a command line through Electric Imp's [Build API](http://electricimp.com/docs/buildapi).
+The **imp-cli** allows you to manage your Electric Imp development from a command line through Electric Imp’s [Build API](https://electricimp.com/docs/buildapi).
 
 # Installation
 
@@ -28,9 +28,10 @@ Commands:
 
   Options:
 
-    -h, --help     output usage information
-    -V, --version  output the version number
+    -h, help     output usage information
+    -V, version  output the version number
 ```
 
 # License
+
 The build-cli is licensed under the [MIT License](./LICENSE).
