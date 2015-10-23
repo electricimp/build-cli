@@ -1,0 +1,47 @@
+{
+  "name": "build-cli",
+  "version": "0.2.1",
+  "description": "Command line interface for the Electric Imp platform Build API",
+  "main": "bin/imp.js",
+  "engines": {
+    "node": "^4.1.2"
+  },
+  "preferGlobal": "true",
+  "bin": {
+    "imp": "bin/imp.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ElectricImpSampleCode/build-cli.git"
+  },
+  "keywords": [
+    "electricimp",
+    "build",
+    "imp",
+    "iot",
+    "cli"
+  ],
+  "author": {
+    "name": "Matt Haines",
+    "email": "matt@electricimp.com"
+  },
+  "license": "MIT",
+  "scripts": {
+    "test": "jasmine"
+  },
+  "bugs": {
+    "url": "https://github.com/ElectricImpSampleCode/build-cli/issues"
+  },
+  "homepage": "https://github.com/ElectricImpSampleCode/build-cli",
+  "dependencies": {
+    "cli-prompt": "^0.4.2",
+    "cli-table": "^0.3.1",
+    "colors": "^1.1.0",
+    "commander": "^2.8.1",
+    "imp-api": "^0.2.8",
+    "osenv": "^0.1.1"
+  },
+  "devDependencies": {
+    "jasmine": "^2.3.1"
+  }
+}
