@@ -7,8 +7,8 @@ var fs = require("fs");
 var ImpConfig = require("../lib/impConfig.js");
 var config = new ImpConfig();
 
-program
-  .option("-t, --tag [tag]", "adds a tag to the revision");
+//program
+//  .option("-t, --tag [tag]", "adds a tag to the revision");
 
 program.parse(process.argv);
 
@@ -32,7 +32,7 @@ config.init(["apiKey", "modelId", "agentFile", "deviceFile",], function(err, suc
   model.device_code = fs.readFileSync(config.get("deviceFile"), "utf8");
 
   // Add the tag (if one was specified)
-  if ("tag" in program) model["marker"] = program.tag;
+  // if ("tag" in program) model["marker"] = program.tag;
 
   imp = config.createImpWithConfig();
   imp.createModelRevision(config.get("modelId"), model, function(err, data) {
