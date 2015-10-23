@@ -1,6 +1,6 @@
 # build-cli
 
-The **imp-cli** allows you to manage your Electric Imp development from a command line through Electric Imp’s [Build API](https://electricimp.com/docs/buildapi).
+*build-cli* allows you to manage your Electric Imp development from a command line through Electric Imp’s [Build API](https://electricimp.com/docs/buildapi).
 
 # Installation
 
