@@ -9,8 +9,8 @@ var ImpConfig = require("../lib/impConfig.js");
 var config = new ImpConfig();
 
 program
-    .option("-a, --add [device_id]", "adds a device from the current project")
-    .option("-r, --remove [device_id]", "removes a device to the current project")
+    .option("-a, --add [device_id]", "adds a device to the current project")
+    .option("-r, --remove [device_id]", "removes a device from the current project")
     .option("--online", "filters list to only display online devices")
     .option("--offline", "filters list to only display offline devices")
     .option("--assigned", "filters list to only display assigned devices")
