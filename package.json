@@ -4,7 +4,7 @@
   "description": "Command line interface for the Electric Imp platform Build API",
   "main": "bin/imp.js",
   "engines": {
-    "node": "^4.1.2"
+    "node": "^4.2.1"
   },
   "preferGlobal": "true",
   "bin": {
