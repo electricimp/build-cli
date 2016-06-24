@@ -1,5 +1,8 @@
 #! /usr/bin/env node
 
+// Set up your system to use build-cli
+// Requires a Build API key (see https://electricimp.com/docs/resources/ideuserguide/#2-2)
+
 var program = require("commander");
 var prompt = require("cli-prompt");
 
@@ -9,12 +12,12 @@ var config = new ImpConfig();
 var imp;
 
 program
-  .option("-u, --url [baseUrl]", "overrides base URL for the API (eg. -u canary-build.electricimp.com)")
+  .option("-u, --url [baseUrl]", "Overrides base URL for the API (eg. -u build.myprivatecloud.com)")
 
 program.parse(process.argv);
 
 function apiKeyPrompt(apiKey) {
-  var promptText = "Build Api-Key";
+  var promptText = "Build API Key";
   if (apiKey) {
     promptText += " (" + apiKey + "): ";
   } else {
@@ -31,12 +34,12 @@ function apiKeyPrompt(apiKey) {
     config.setGlobal("apiBase", url);
     imp = config.createImpWithConfig();
 
-    //For Login, is { "device_id": "garbage" } the intended set of options, or is this left over from testing?
+    // For Setuo, is { "device_id": "garbage" } the intended set of options, or is this left over from testing?
     imp.getDevices({ "device_id" : "garbage" }, function(err, data) {
       if (err) {
-        // clear API Key, and try again
+        // Clear API key and try again
         imp.apiKey = null;
-        console.log("ERROR: Invalid Api-Key..");
+        console.log("ERROR: Invalid API Key");
         apiKeyPrompt(apiKey);
         return;
       }
@@ -47,10 +50,9 @@ function apiKeyPrompt(apiKey) {
           return;
         }
 
-        console.log("Success! Wrote configuration to ~/.impconfig.");
+        console.log("Wrote global configuration to ~/.impconfig");
         console.log("To create a new project run: imp init");
       });
-
     });
   });
 }
