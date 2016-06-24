@@ -1,5 +1,7 @@
 #! /usr/bin/env node
 
+// Pulls latest version of a model down from server
+
 var program = require("commander");
 var fs = require("fs");
 
@@ -28,7 +30,7 @@ function done(err, data) {
       fs.writeFile(config.get("deviceFile"), data.revision.device_code);
       fs.writeFile(config.get("agentFile"), data.revision.agent_code);
 
-      console.log("Success! Pulled version " + data.revision.version + "..");
+      console.log("Update local code to version " + data.revision.version);
     }
   }
 }
@@ -44,7 +46,7 @@ config.init(["apiKey", "modelId", "devices", "agentFile", "deviceFile"], functio
   if ("devices" in program) {
     imp.getDevices( { "model_id": config.get("modelId") }, function(err, data) {
       if (err) {
-        console.log(err);
+        console.log("ERROR: " + err);
         return;
       } else {
         var devices = [];
@@ -57,7 +59,7 @@ config.init(["apiKey", "modelId", "devices", "agentFile", "deviceFile"], functio
             console.log("ERROR: " + err);
             return;
           }
-          console.log("Success! Pulled devices from model " + config.get("modelId"));
+          console.log("Update local devices list for model " + config.get("modelId"));
         });
       }
     });
@@ -67,7 +69,7 @@ config.init(["apiKey", "modelId", "devices", "agentFile", "deviceFile"], functio
     } else {
       imp.getModelRevisions(config.get("modelId"), null, function(err, data) {
         if (err) {
-          console.log("ERROR: Something went horribly wrong..");
+          console.log("ERROR: " + err);
           return;
         }
         if ("revisions" in data && data.revisions.length > 0) {
