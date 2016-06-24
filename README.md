@@ -17,13 +17,13 @@ imp [command] [options]
 Commands:
 
     devices     List and manage devices
-    init        Create an empty imp project, or reinitialize an existing one
     log         Display logs from the specified device
-    login       Sets your global API-Key
     migrate     Migrates a model from one account to another
     models      List and manage models
+    new         Create an new, empty imp project, or reinitialize an existing one
     pull        Fetch latest build from the server
     push        Update the build, and push code to developer devices
+    setup       Sets your global Build API key
     help        Display help for [cmd]
 
   Options:
