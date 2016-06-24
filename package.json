@@ -1,6 +1,6 @@
 {
   "name": "build-cli",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "Command line interface for the Electric Imp platform Build API",
   "main": "bin/imp.js",
   "engines": {
@@ -38,7 +38,7 @@
     "cli-table": "^0.3.1",
     "colors": "^1.1.0",
     "commander": "^2.8.1",
-    "imp-api": "^0.2.8",
+    "build-api": "^0.2.8",
     "osenv": "^0.1.1"
   },
   "devDependencies": {
