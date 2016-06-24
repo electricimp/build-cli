@@ -1,5 +1,7 @@
 #! /usr/bin/env node
 
+// Create a new, empty imp project, or reinitialize and existing one
+
 var program = require("commander");
 var prompt = require("cli-prompt");
 var fs = require("fs");
@@ -10,34 +12,34 @@ var config = new ImpConfig();
 var imp;
 
 program
-  .option("-f, --force", "overwrites existing .impconfig file")
-  .option("-k, --keep [options]", "prevents code files from being overwriten during init")
-  .option("-g, --global", "uses global api-key and prevents api-key from being writen to .impconfig")
+  .option("-f, --force", "Overwrites existing .impconfig file")
+  .option("-k, --keep [options]", "Prevents code files from being overwritten during initialization")
+  .option("-g, --global", "Uses your global API key and prevents a local API key from being writen to .impconfig")
 
   .on("--help", function() {
     console.log("  Usage:");
     console.log("");
-    console.log("    imp init -k\t\tagent & device code files will not be overwriten");
-    console.log("    imp init -k device\tdevice code file will not be overwriten");
-    console.log("    imp init -k agent\tagent code file will not be overwriten");
+    console.log("    imp new -k\t\tAgent and device code files will not be overwritten");
+    console.log("    imp new -k device\tDevice code file will not be overwritten");
+    console.log("    imp new -k agent\tAgent code file will not be overwritten");
   });
 
 program.parse(process.argv);
 
 function apiKeyPrompt(apiKey, next) {
   if ("global" in program) {
-    // if apiKey isn't set in global config, log error and return
+    // If 'apiKey' isn't set in the global config, log error and return
     if (!config.getGlobal("apiKey")) {
-      console.log("Global API Key is not set - run `imp login` then try again.");
+      console.log("Global Build API key is not set - run 'imp setup' then try 'imp new' again");
       return;
     }
 
     imp = config.createImpWithConfig();
     imp.getDevices({ "device_id" : "garbage" }, function(err, data) {
       if (err) {
-        // clear API Key, and try again
+        // Clear API key and try again
         imp.apiKey = null;
-        console.log("ERROR: Invalid Api-Key..");
+        console.log("ERROR: Invalid Build API key");
         apiKeyPrompt(apiKey, next);
         return;
       }
@@ -47,7 +49,7 @@ function apiKeyPrompt(apiKey, next) {
     return;
   }
 
-  var promptText = "Build Api-Key";
+  var promptText = "Build API key";
   if (apiKey) {
     promptText += " (" + apiKey + "): ";
   } else {
@@ -61,9 +63,9 @@ function apiKeyPrompt(apiKey, next) {
     imp = config.createImpWithConfig();
     imp.getDevices({ "device_id" : "garbage" }, function(err, data) {
       if (err) {
-        // clear API Key, and try again
+        // Clear API key and try again
         imp.apiKey = null;
-        console.log("ERROR: Invalid Api-Key..");
+        console.log("ERROR: Invalid Build API key");
         apiKeyPrompt(apiKey, next);
         return;
       }
@@ -74,16 +76,16 @@ function apiKeyPrompt(apiKey, next) {
 }
 
 function modelPrompt(next) {
-  prompt("Model Id or Name: ", function(val) {
+  prompt("Model ID or name: ", function(val) {
     if (!val) {
       modelPrompt(next);
       return;
     }
 
-    // try to get model by id
+    // Yry to get model by ID
     imp.getModel(val, function(err, data) {
       if (!err) {
-        prompt("Found a matching model '" + data.model.name + "', use this (y): ", function(confirm) {
+        prompt("Found a matching model: '" + data.model.name + "'. Use this? (y/n) ", function(confirm) {
           if (confirm && confirm.toLowerCase()[0] != "y") {
             modelPrompt(next);
             return;
@@ -95,24 +97,23 @@ function modelPrompt(next) {
           return;
         });
       } else {
-
-        // an error means no model_id match was found
+        // An error means no model_id match was found
         imp.getModels({ "name": val }, function(err, data) {
           if (err) {
-            console.log("Something went horribly wrong!");
+            console.log("ERROR: Could not match the model ID");
             return;
           }
 
-          // see if we found a matching result
+          // See if we found a matching result
           var foundMatch = false;
-          for(var i = 0; i < data.models.length; i++) {
-            if(data.models[i].name.toLowerCase() == val.toLowerCase()) {
+          for (var i = 0; i < data.models.length; i++) {
+            if (data.models[i].name.toLowerCase() == val.toLowerCase()) {
               foundMatch = true;
               break;
             }
           }
           if (foundMatch) {
-            prompt("Found a matching model '" + data.models[i].name + "', use this (y): ", function(confirm){
+            prompt("Found a matching model: '" + data.models[i].name + "'. Use this? (y/n) ", function(confirm){
               if (confirm && confirm.toLowerCase()[0] != "y") {
                 modelPrompt(next);
                 return;
@@ -124,7 +125,7 @@ function modelPrompt(next) {
               return;
             });
           } else {
-            prompt("Create new model '" + val + "' (y): ", function(confirm) {
+            prompt("Create new model: '" + val + "'? (y/n) ", function(confirm) {
               if (confirm && confirm.toLowerCase()[0] != "y") {
                 modelPrompt(next);
                 return;
@@ -159,12 +160,12 @@ function getDevices(next) {
 
   imp.getDevices({ "model_id": modelId }, function(err, data) {
     if (err) {
-      console.log("Warning: Could not fetch devices assigned to '" + modelName + "'..");
+      console.log("WARNING: Could not fetch devices assigned to model '" + modelName + "'");
       next();
     }
 
     var devices = [];
-    for(var i = 0; i < data.devices.length; i++) {
+    for (var i = 0; i < data.devices.length; i++) {
       if (data.devices[i].model_id == modelId) {
         devices.push(data.devices[i].id);
       }
@@ -173,26 +174,25 @@ function getDevices(next) {
     config.setLocal("devices", devices);
 
     var devicesText = devices.length == 1 ? "device" : "devices"
-    console.log("Info: Found " + devices.length + " " + devicesText + " associated with '" + modelName + "'");
+    console.log("Found " + devices.length + " " + devicesText + " associated with model '" + modelName + "'");
     next();
   });
 }
 
 function fileNamePrompt(next) {
   var modelName = config.getLocal("modelName");
-
   var baseFileName = modelName.split(" ").join("_").toLowerCase();
-
+  
   var defaultDeviceFileName = config.getLocal("deviceFile") || (baseFileName + ".device.nut");
   var defaultAgentFileName = config.getLocal("agentFile") || (baseFileName + ".agent.nut");
 
   prompt.multi([
     {
-      label: "Device code file ("+defaultDeviceFileName+")",
+      label: "Device code file (" + defaultDeviceFileName + ")",
       key: "deviceFile"
     },
     {
-      label: "Agent code file ("+defaultAgentFileName+")",
+      label: "Agent code file (" + defaultAgentFileName + ")",
       key: "agentFile"
     }
   ], function(data){
@@ -225,8 +225,7 @@ function finalize() {
             return;
           }
 
-          console.log("Success! To add devices run:");
-          console.log("   imp devices -a <deviceId>");
+          console.log("Model created/updated. To add devices run: 'imp devices -a <deviceID>'");
         });
 
         return;
@@ -242,15 +241,15 @@ function finalize() {
         agentCode = data.revision.agent_code;
 
         if ("keep" in program && keep === true) {
-          // don't overwrite any saved code
+          // Don't overwrite any saved code
         } else if ("keep" in program && program.keep == "device") {
-          // only overwrite the agent code
+          // Only overwrite the agent code
           fs.writeFile(agentFile, agentCode);
         } else if ("keep" in program && program.keep == "agent") {
-          // only overwrite the device code
+          // Only overwrite the device code
           fs.writeFile(deviceFile, deviceCode);
         } else {
-          // overwrite both
+          // Overwrite both agent code and device code
           fs.writeFile(deviceFile, deviceCode);
           fs.writeFile(agentFile, agentCode);
         }
@@ -284,8 +283,7 @@ function finalize() {
           return;
         }
 
-        console.log("Success! To add devices run:");
-        console.log("   imp devices -a <deviceId>");
+        console.log("Model created/updated. To add devices run: 'imp devices -a <deviceId>'");
       });
     });
   }
@@ -294,7 +292,7 @@ function finalize() {
 config.init(null, function() {
   // Make sure this folder doesn't already have a config file
   if (this.getLocalConfig() && !("force" in program)) {
-    console.log("ERROR: .impconfig already exists. Specify '-f' to create new configuration.");
+    console.log("ERROR: .impconfig already exists. Specify '-f' to re-initialize model");
     return;
   }
 
