@@ -22,8 +22,8 @@
     "cli"
   ],
   "author": {
-    "name": "Matt Haines",
-    "email": "matt@electricimp.com"
+    "name": "Cat Haines",
+    "email": "tony@electricimp.com"
   },
   "license": "MIT",
   "scripts": {
@@ -38,7 +38,7 @@
     "cli-table": "^0.3.1",
     "colors": "^1.1.0",
     "commander": "^2.8.1",
-    "build-api": "^0.2.8",
+    "build-api": "^0.3.0",
     "osenv": "^0.1.1"
   },
   "devDependencies": {
