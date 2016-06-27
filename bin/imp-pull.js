@@ -11,7 +11,7 @@ var config = new ImpConfig();
 var imp;
 
 program
-    .option("-r, --revision <revision>", "Pulls the specified revision")
+    .option("-r, --revision <revision>", "Pulls the specified revision (build)")
     .option("-d, --devices", "Pulls and syncs the model's list of assigned devices")
 
 program.parse(process.argv);
@@ -28,7 +28,7 @@ function done(err, data) {
         if ("revision" in data) {
             fs.writeFile(config.get("deviceFile"), data.revision.device_code);
             fs.writeFile(config.get("agentFile"), data.revision.agent_code);
-            console.log("Updated local code to version " + data.revision.version);
+            console.log("Updated local code to build " + data.revision.version);
         }
     }
 }
@@ -59,8 +59,8 @@ config.init(["apiKey", "modelId", "devices", "agentFile", "deviceFile"], functio
                         return;
                     }
 
-					var modelName = config.getLocal("modelName");
-                    console.log("Updated list of devices for model '" + modelName + "'");
+                    var modelName = config.getLocal("modelName");
+                    console.log("Updated the list of devices associated with model '" + modelName + "'");
                 });
             }
         });
