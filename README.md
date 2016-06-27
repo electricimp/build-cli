@@ -1,4 +1,4 @@
-# build-cli
+# build-cli 0.3.0
 
 *build-cli* allows you to manage your Electric Imp development from a command line through Electric Imp’s [Build API](https://electricimp.com/docs/buildapi).
 
@@ -8,7 +8,8 @@
 npm install -g build-cli
 ```
 
-## Usage
+# Usage
+
 After installation, the `imp` program will be available from your command prompt. From there you should be able to use all of the tools (which are self documented as shown below).
 
 ```
@@ -26,11 +27,32 @@ Commands:
     setup       Sets your global Build API key
     help        Display help for [cmd]
 
-  Options:
+Options:
 
     -h, help     output usage information
     -V, version  output the version number
 ```
+
+# Introduction
+
+In your home directory, run `imp setup` to set up your development environment. You will need a Build API key, which you can obtain by logging in to the [Electric Imp IDE](https://ide-electricimp.com/ide/) with your account credentials, and selecting ‘Build API Keys’ from the ‘username‘ menu on the top far right of the workspace.
+
+
+
+
+# Release History
+
+### 0.3.0
+
+- *init* command renamed *new*
+- *login* command renamed *setup*
+- Improved feedback messaging
+- *log* now has `-t`, `--title` option to log devices by name rather than device ID (`-d`, `--device`)
+- Support for *build-api* 0.3.0
+
+### 0.2.8
+
+- Initial release of Electric Imp fork.
 
 # License
 
