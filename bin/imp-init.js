@@ -30,7 +30,7 @@ function apiKeyPrompt(apiKey, next) {
     if ("global" in program) {
         // If 'apiKey' isn't set in the global config, log error and return
         if (!config.getGlobal("apiKey")) {
-            console.log("Global Build API key is not set - run 'imp setup' then try 'imp new' again");
+            console.log("Global Build API key is not set - run 'imp setup' then try 'imp init' again");
             return;
         }
 
@@ -86,7 +86,7 @@ function modelPrompt(next) {
         // Yry to get model by ID
         imp.getModel(val, function(err, data) {
             if (!err) {
-                prompt("Found a matching model: '" + data.model.name + "'. Use this? (y/n) ", function(confirm) {
+                prompt("Found an existing model: '" + data.model.name + "'. Use this? (y/n) ", function(confirm) {
                     if (confirm && confirm.toLowerCase()[0] != "y") {
                         modelPrompt(next);
                         return;
@@ -115,7 +115,7 @@ function modelPrompt(next) {
                     }
 
                     if (foundMatch) {
-                        prompt("Found a matching model: '" + data.models[i].name + "'. Use this? (y/n) ", function(confirm){
+                        prompt("Found an existing model: '" + data.models[i].name + "'. Use this? (y/n) ", function(confirm){
                             if (confirm && confirm.toLowerCase()[0] != "y") {
                                 modelPrompt(next);
                                 return;
