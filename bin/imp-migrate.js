@@ -64,7 +64,7 @@ function modelPrompt(env, next) {
         // Try to get model by ID
         imp.getModel(val, function(err, data) {
             if (!err) {
-                prompt("Found an existing model '" + data.model.name + "', use this (y/n) ", function(confirm) {
+                prompt("Found an existing model: '" + data.model.name + "'. Use this? (y/n) ", function(confirm) {
                     if (confirm && confirm.toLowerCase()[0] != "y") {
                         modelPrompt(env, next);
                         return;
@@ -93,7 +93,7 @@ function modelPrompt(env, next) {
                     }
 
                     if (foundMatch) {
-                        prompt("Found an existing model '" + data.models[i].name + "', use this? (y/n) ", function(confirm){
+                        prompt("Found an existing model: '" + data.models[i].name + "'. Use this? (y/n) ", function(confirm){
                             if (confirm && confirm.toLowerCase()[0] != "y") {
                                 modelPrompt(env, next);
                                 return;
@@ -148,7 +148,6 @@ function fileNamePrompt(next) {
             key: "agentFile"
         }
     ], function(data){
-
         if (data.deviceFile === "next") data.deviceFile = defaultDeviceFileName;
         if (data.agentFile === "next") data.agentFile = defaultAgentFileName;
 
@@ -159,7 +158,7 @@ function fileNamePrompt(next) {
 }
 
 function pull(next) {
-
+    
     function getVersion(ver, cb) {
         imp.getModelRevision(config.get("modelId"), ver, cb);
     }
@@ -184,7 +183,7 @@ function pull(next) {
     } else {
         imp.getModelRevisions(config.get("modelId"), null, function(err, data) {
             if (err) {
-                console.log("ERROR: Could not get the requested model code revision");
+                console.log("ERROR: Could not get the requested model code");
                 return;
             }
             
@@ -216,9 +215,6 @@ function deploy(next) {
     model.agent_code = fs.readFileSync(config.get("agentFile"), "utf8");
     model.device_code = fs.readFileSync(config.get("deviceFile"), "utf8");
 
-    // Add the tag (if one was specified)
-    if ("tag" in program) model["marker"] = program.tag;
-
     imp.createModelRevision(config.get("modelId"), model, function(err, data) {
         if (err) {
             if (err.code != "CompileFailed") {
@@ -248,9 +244,12 @@ function deploy(next) {
         }
 
         imp.restartModel(config.get("modelId"), function(err, restartData) {
-            if (err) console.log("Warning: Could not restart model");
-            console.log("Created revision " + data.revision.version);
-            next();
+            console.log("Uploaded the latest model code as build " + data.revision.version);
+            if (err) {
+                console.log("WARNING: Could not restart the model’s devices");
+            } else {
+                console.log("Restarted the model’s devices with the new code");
+            }
         });
     });
 }
@@ -258,7 +257,7 @@ function deploy(next) {
 function finalize(){
     console.log("");
     console.log("=================================================================")
-    console.log("Migration complete - Saving local configuration...");
+    console.log("Migration complete. Saving local configuration");
     config.saveLocalConfig(function(err) {
         if (err) {
             console.log("ERROR: Problem saving local configuration: " + err);
