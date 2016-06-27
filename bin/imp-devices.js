@@ -35,7 +35,8 @@ config.init(["apiKey"], function(err, success) {
     // Add
     if ("add" in program) {
         if (!config.getLocal("devices")) {
-            console.log("ERROR: 'devices' key missing from .impconfig");
+            console.log("ERROR: Devices list missing from local .impconfig");
+            console.log("       Run 'imp pull -d' to update this project");
             return;
         }
 
@@ -65,10 +66,10 @@ config.init(["apiKey"], function(err, success) {
                         console.log("ERROR: " + err);
                         return;
                     }
-                    console.log("The device is now assigned to this model (" + modelName + ")");
+                    console.log("The device '" + program.add + "' is now assigned to model '" + modelName + "'");
                 });
             } else {
-                console.log("The device is already assigned to this model (" + modelName + ")");
+                console.log("The device '" + program.add + "' is already assigned to model '" + modelName + "'");
             }
         });
         return;
@@ -77,7 +78,8 @@ config.init(["apiKey"], function(err, success) {
     // Remove
     if ("remove" in program) {
         if (!config.get("devices")) {
-            console.log("ERROR: 'devices' key missing from .impconfig");
+            console.log("ERROR: Devices list missing from local .impconfig");
+            console.log("       Run 'imp pull -d' to update this project");
             return;
         }
 
@@ -115,7 +117,7 @@ config.init(["apiKey"], function(err, success) {
                 }
 
                 var modelName = config.getLocal("modelName");
-                console.log("The device is no longer assigned to this model (" + modelName + ")");
+                console.log("The device '" + program.remove + "' is no longer assigned to model '" + modelName + "'");
             });
         });
 
@@ -188,7 +190,7 @@ config.init(["apiKey"], function(err, success) {
         } else {
             // Report there are no found devices
             var message = "There are no ";
-            (assignedState) ? message += "assigned devices" : "unassigned devices";
+            if (assignedState != null) message += (assignedState) ? "assigned devices" : "unassigned devices";
             if (powerState) message += " that are " + powerState;
             if ("current" in program) message += " for model '" + config.getLocal("modelName") + "'";
             console.log(message);
