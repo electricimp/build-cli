@@ -18,7 +18,7 @@ program.parse(process.argv);
 
 config.init(["apiKey"], function(err, success) {
     if (err) {
-        console.log("ERROR: Could not find a Build API key. Run 'imp setup' to set your global Build API key");
+        console.log("ERROR: Global Build API key is not set - run 'imp setup' then try 'imp models' again");
         return;
     }
 
@@ -46,18 +46,23 @@ config.init(["apiKey"], function(err, success) {
             }
 
             var filteredModels = [];
-
             modelData.models.some(function(model) {
                 if (activeState == null) {
+                    // Not filtering by state, so just push it to the list
                     filteredModels.push(model);
                 } else if (activeState) {
+                    // Filtering by state == active, so check for
+                    // device associations
                     deviceData.devices.some(function(device) {
                         if (device.model_id == model.id) {
+                            // At least one device is listing this as its model,
+                            // so this model is active - push it to the list
                             filteredModels.push(model);
                             return true;
                         }
                     });
                 } else {
+                    // Filtering by state == inactive
                     var found = false;
                     deviceData.devices.some(function(device) {
                         if (device.model_id == model.id) {
@@ -66,12 +71,14 @@ config.init(["apiKey"], function(err, success) {
                         }
                     });
 
+                    // Model is not associated with any device, ie. it's inactive
+                    // so push it to the list
                     if (!found) filteredModels.push(model);
                 }
             });
 
             if (filteredModels.length > 0) {
-                // Create the model list as a table
+                // We have models to list, so create the list as a table
                 var table = new Table({
                     head: ['Model ID', 'Model Name']
                     , colWidths: [20, 30]
@@ -84,7 +91,7 @@ config.init(["apiKey"], function(err, success) {
                 console.log(table.toString());
             } else {
                 // Report there are no found models
-                console.log("No models meet your search criteria");
+                console.log("No models meet your filter criteria");
             }
         });
     });
