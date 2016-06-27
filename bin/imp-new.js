@@ -30,7 +30,7 @@ function apiKeyPrompt(apiKey, next) {
     if ("global" in program) {
         // If 'apiKey' isn't set in the global config, log error and return
         if (!config.getGlobal("apiKey")) {
-            console.log("Global Build API key is not set - run 'imp setup' then try 'imp new' again");
+            console.log("ERROR: Global Build API key is not set - run 'imp setup' then try 'imp new' again");
             return;
         }
 
@@ -174,7 +174,7 @@ function getDevices(next) {
             }
         }
 
-		// Save current list of model's devices locally
+        // Save current list of model's devices locally
         config.setLocal("devices", devices);
 
         var devicesText = devices.length == 1 ? "device" : "devices"
