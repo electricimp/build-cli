@@ -1,4 +1,4 @@
-# build-cli 0.3.0
+# build-cli 0.3.1
 
 *build-cli* allows you to manage your Electric Imp development from a command line through Electric Imp’s [Build API](https://electricimp.com/docs/buildapi).
 
@@ -45,15 +45,20 @@ For further information, including a more detailed guide to using *build-cli*, p
 
 # Release History
 
+### 0.3.1
+
+- Minor changes
+
 ### 0.3.0
 
 - *init* command renamed *new*
 - *login* command renamed *setup*
 - Improved feedback messaging
 - *log* now has `-t`, `--title` option to log devices by name rather than device ID (`-d`, `--device`)
+- *devices* now has `-c`, `--current` option to list the devices assigned to the current project
 - Support for *build-api* 0.3.0
 
-### 0.2.8
+### 0.2.4
 
 - Initial release of Electric Imp fork of *imp-cli*, *build-cli*.
 
