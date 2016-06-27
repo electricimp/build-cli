@@ -37,7 +37,11 @@ Options:
 
 In your home directory, run `imp setup` to set up your development environment. You will need a Build API key, which you can obtain by logging in to the [Electric Imp IDE](https://ide-electricimp.com/ide/) with your account credentials, and selecting ‘Build API Keys’ from the ‘username‘ menu on the top far right of the workspace.
 
-Now you can create individual directories for each of your imp-based projects. To prepare a directory for use, change to the relevant directory and run `imp new`. You’ll be asked for a Build API key &mdash; just hit Enter to use the default value, the one you entered during the setup phase &mdash; and then for the name of the project. This can match an existing imp application (‘model’) or be entirely new if you want to create a project from scratch. You will also be asked to provide filenames &mdash; just hit Enter to use the default values &mdash; for your agent and device code files. These will be populated with the latest build from the Electric Imp impCloud&trade; if your project is derived from an existing model.
+Now you can create individual directories for each of your imp-based projects. To prepare a directory for use, change to the relevant directory and run `imp new`. You’ll be asked for a Build API key &mdash; just hit Enter to use the default value, the one you entered during the setup phase. Each project stores its own Build API key in addition to the global value stored during the setup process. This allows you to work on projects for other users, by entering a Build API key associated with their account when you run `imp new`, while also working on other projects of your own.
+
+You will next be prompted for the name of the project. This can match an existing imp application (‘model’) or be entirely new if you want to create a project from scratch. You will also be asked to provide filenames &mdash; just hit Enter to use the default values &mdash; for your agent and device code files. These will be populated with the latest build from the Electric Imp impCloud&trade; if your project is derived from an existing model.
+
+For further information, including a more detailed guide to using *build-cli*, please see [the Electric Imp Dev Center](https://electricimp.com/docs/buildapi/buildcli/).
 
 # Release History
 
