@@ -9,55 +9,56 @@ var ImpConfig = require("../lib/impConfig.js");
 var config = new ImpConfig();
 
 program
-    .option("-a, --add [device_id]", "adds a device to the current project")
-    .option("-r, --remove [device_id]", "removes a device from the current project")
-    .option("--online", "filters list to only display online devices")
-    .option("--offline", "filters list to only display offline devices")
-    .option("--assigned", "filters list to only display assigned devices")
-    .option("--unassigned", "filters list to only display unassigned devices")
+    .option("-a, --add <deviceID>", "Adds a device to the current model")
+    .option("-r, --remove <deviceID>", "Removes a device from the current model")
+    .option("-c, --current", "Filters list to only display devices assigned to the current model")
+    .option("--online", "Filters list to only display online devices")
+    .option("--offline", "Filters list to only display offline devices")
+    .option("--assigned", "Filters list to only display assigned devices")
+    .option("--unassigned", "Filters list to only display unassigned devices")
 
 program.parse(process.argv);
 
 config.init(["apiKey"], function(err, success) {
     if (err) {
-        console.log("ERROR: Could not find an API-Key");
-        console.log("   Run `imp login` to set global API-Key");
+        console.log("ERROR: Could not find a Build API key. Run 'imp setup' to set your global Build API key");
         return;
-}
+    }
 
     if ("add" in program && "remove" in program) {
-        console.log("ERROR: You cannot specifiy -a AND -d");
+        console.log("ERROR: You cannot specifiy -a and -d");
         return;
     }
 
     imp = config.createImpWithConfig();
 
-    // add
+    // Add
     if ("add" in program) {
-        if(!config.getLocal("devices")) {
-            console.log("ERROR: `devices` key missing from .impconfig");
+        if (!config.getLocal("devices")) {
+            console.log("ERROR: Devices list missing from local .impconfig");
+            console.log("       Run 'imp pull -d' to update this project");
             return;
         }
 
         if (typeof program.add != "string") {
-            console.log("ERROR: Invalid or missing device_id")
-            console.log("   imp devices -a [device_id]")
+            console.log("ERROR: Invalid or missing device ID. Use 'imp devices -a <deviceID>'")
             return;
         }
-    
-        imp.assignDevice(program.add, config.get("modelId"), function(err,data) {
+
+        imp.assignDevice(program.add, config.get("modelId"), function(err, data) {
             if (err) {
                 console.log("ERROR: " + err.message_short);
                 return;
             }
-            // check if it's in config.devices already
+
+            // Check if the added device is in config.devices already
             var found = false;
             var devices = config.get("devices");
-            for(var i = 0; i < devices.length; i++) {
-                if (devices[i] == program.add) {
-                    found = true;
-                }
+            for (var i = 0 ; i < devices.length ; i++) {
+                if (devices[i] == program.add) found = true;
             }
+
+            var modelName = config.getLocal("modelName");
             if (!found) {
                 devices.push(program.add);
                 config.saveLocalConfig(function(err) {
@@ -65,31 +66,32 @@ config.init(["apiKey"], function(err, success) {
                         console.log("ERROR: " + err);
                         return;
                     }
-                    console.log("Success!");
+                    console.log("The device '" + program.add + "' is now assigned to model '" + modelName + "'");
                 });
             } else {
-                console.log("Success!");
+                console.log("The device '" + program.add + "' is already assigned to model '" + modelName + "'");
             }
         });
         return;
     }
 
-    // remove
+    // Remove
     if ("remove" in program) {
-        if(!config.get("devices")) {
-            console.log("ERROR: `devices` key missing from .impconfig");
+        if (!config.get("devices")) {
+            console.log("ERROR: Devices list missing from local .impconfig");
+            console.log("       Run 'imp pull -d' to update this project");
             return;
         }
 
         if (typeof program.remove != "string") {
-            console.log("ERROR: Invalid or missing device_id")
-            console.log("   imp devices -r [device_id]")
+            console.log("ERROR: Invalid or missing device ID. Use 'imp devices -r <deviceID>'")
             return;
         }
-        // check if it's in config.devices already
+
+        // Check that the device we're removing is in config.devices
         var index = null;
         var devices = config.get("devices");
-        for(var i = 0; i < devices.length; i++) {
+        for (var i = 0 ; i < devices.length ; i++) {
             if (devices[i] == program.remove) {
                 index = i;
                 break;
@@ -97,7 +99,7 @@ config.init(["apiKey"], function(err, success) {
         }
 
         if (index == null) {
-            console.log("INFO: " + program.remove + " is not assigned to the active model.");
+            console.log("WARNING: " + program.remove + " is not assigned to this model");
             return;
         }
 
@@ -107,26 +109,34 @@ config.init(["apiKey"], function(err, success) {
                 return;
             }
 
-            devices.splice(index,1);
+            devices.splice(index, 1);
             config.saveLocalConfig(function(err) {
                 if (err) {
                     console.log("ERROR: " + err);
                     return;
                 }
-                console.log("Success!");
+
+                var modelName = config.getLocal("modelName");
+                console.log("The device '" + program.remove + "' is no longer assigned to model '" + modelName + "'");
             });
         });
 
         return;
     }
 
-    // list
+    // List devices
     if ("unassigned" in program && "assigned" in program) {
-        console.log("ERROR: You cannot specify --assigned AND --unassigned");
+        console.log("ERROR: You cannot specify --assigned and --unassigned");
         return;
     }
+
     if ("online" in program && "offline" in program) {
-        console.log("ERROR: You cannot specify --offline AND --online");
+        console.log("ERROR: You cannot specify --offline and --online");
+        return;
+    }
+
+    if ("unassigned" in program && "current" in program) {
+        console.log("ERROR: You cannot specify --current and --unassigned");
         return;
     }
 
@@ -142,32 +152,48 @@ config.init(["apiKey"], function(err, success) {
 
         if ("online" in program) powerState = "online";
         if ("offline" in program) powerState = "offline";
-        if ("assigned" in program) assignedState = true;
+        if ("assigned" in program || "current" in program) assignedState = true;
         if ("unassigned" in program) assignedState = false;
 
         data.devices.forEach(function(device) {
             if ((powerState == null || device.powerstate == powerState) && (assignedState == null || (device.model_id != null) == assignedState)) {
-                filteredDevices.push(device);
+                if ("current" in program) {
+                    if (device.model_id == config.getLocal("modelId")) {
+                        filteredDevices.push(device);
+                    }
+                } else {
+                    filteredDevices.push(device);
+                }
             }
         });
 
-        var table = new Table({
-            head: ['device_id', 'device_name', 'model_id', 'state']
-            , colWidths: [20, 30, 14, 10]
-        });
+        if (filteredDevices.length > 0) {
+            // Build the devices list as a table
+            var table = new Table({
+                head: ['Device ID', 'Device Name', 'Model ID', 'State']
+                , colWidths: [20, 30, 14, 10]
+            });
 
-        filteredDevices.forEach(function(device){
-            // Skip devices with null id (can't do anything with them anyways)
-            if (!device.id) return;
+            filteredDevices.forEach(function(device){
+                // Skip devices with null ID (can't do anything with them anyway)
+                if (!device.id) return;
 
-            table.push([
-                device.id,
-                (device.name || "null"),
-                (device.model_id || "null"),
-                (device.powerstate || "null")
-            ]);
-        })
+                table.push([
+                    device.id,
+                    (device.name || device.id),
+                    (device.model_id || "Unassigned"),
+                    (device.powerstate || "Unknown")
+                ]);
+            })
 
-        console.log(table.toString());
+            console.log(table.toString());
+        } else {
+            // Report there are no found devices
+            var message = "There are no ";
+            if (assignedState != null) message += (assignedState) ? "assigned devices" : "unassigned devices";
+            if (powerState) message += " that are " + powerState;
+            if ("current" in program) message += " for model '" + config.getLocal("modelName") + "'";
+            console.log(message);
+        }
     });
 });

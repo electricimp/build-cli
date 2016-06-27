@@ -1,10 +1,10 @@
 {
   "name": "build-cli",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "Command line interface for the Electric Imp platform Build API",
   "main": "bin/imp.js",
   "engines": {
-    "node": "^4.2.1"
+    "node": ""
   },
   "preferGlobal": "true",
   "bin": {
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ElectricImpSampleCode/build-cli.git"
+    "url": "git+https://github.com/ElectricImpSampleCode/build-cli.git"
   },
   "keywords": [
     "electricimp",
@@ -22,8 +22,8 @@
     "cli"
   ],
   "author": {
-    "name": "Matt Haines",
-    "email": "matt@electricimp.com"
+    "name": "Cat Haines",
+    "email": "tony@electricimp.com"
   },
   "license": "MIT",
   "scripts": {
@@ -34,14 +34,14 @@
   },
   "homepage": "https://github.com/ElectricImpSampleCode/build-cli",
   "dependencies": {
-    "cli-prompt": "^0.4.2",
+    "cli-prompt": "^0.6.0",
     "cli-table": "^0.3.1",
-    "colors": "^1.1.0",
-    "commander": "^2.8.1",
-    "imp-api": "^0.2.8",
-    "osenv": "^0.1.1"
+    "colors": "^1.1.2",
+    "commander": "^2.9.0",
+    "build-api": "^0.3.0",
+    "osenv": "^0.1.3"
   },
   "devDependencies": {
-    "jasmine": "^2.3.1"
+    "jasmine": "^2.4.1"
   }
 }
