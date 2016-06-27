@@ -25,7 +25,6 @@ var messageFormat = {
 program
     .option("-d, --device <deviceID>", "The device ID you would like to see logs for")
     .option("-t, --title <deviceName>", "The device name you would like to see logs for")
-
 // Note: can't use 'name' as an option - it's reserved
 
 program.parse(process.argv);
@@ -72,7 +71,7 @@ function startLog(deviceID) {
 
 config.init(["apiKey"], function(err, success) {
     if (err) {
-        console.log("ERROR: Could not find a Build API key. Run 'imp setup' to set your global Build API key");
+        console.log("ERROR: Global Build API key is not set - run 'imp setup' then try 'imp log' again");
         return;
     }
 
@@ -92,14 +91,14 @@ config.init(["apiKey"], function(err, success) {
             });
 
             if (devId) {
-                console.log("Opening stream for device name '" + program.title + "'. Hit Ctrl-C to quit logging");
+                console.log("Opening stream for device '" + program.title + "'. Hit Ctrl-C to quit logging");
                 startLog(devId);
             } else {
                 console.log("ERROR: There is no device of name '" + program.title + "'");
             }
         });
     } else {
-        console.log("Opening stream for device ID '" + program.device + "'. Hit Ctrl-C to quit logging");
+        console.log("Opening stream for device '" + program.device + "'. Hit Ctrl-C to quit logging");
         startLog(program.device);
     }
 });
