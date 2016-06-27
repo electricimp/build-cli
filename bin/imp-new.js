@@ -286,7 +286,7 @@ function finalize() {
                     return;
                 }
 
-                console.log("Model '" + modelName + "' initialized. To add a device run: `imp devices -a <deviceId>`");
+                console.log("Model '" + modelName + "' initialized. To add a device run: 'imp devices -a <deviceId>'");
             });
         });
     }
