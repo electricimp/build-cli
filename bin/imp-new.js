@@ -177,8 +177,10 @@ function getDevices(next) {
         // Save current list of model's devices locally
         config.setLocal("devices", devices);
 
-        var devicesText = devices.length == 1 ? "device" : "devices"
-        console.log("Found " + devices.length + " " + devicesText + " associated with model '" + modelName + "'");
+        // Display number of devices (if any) associated with this model
+        var devicesText = devices.length == 1 ? "device" : "devices";
+        var devicesLen = devices.length == 0 ? "no" : devices.len;
+        console.log("Found " + devicesLen + " " + devicesText + " associated with model '" + modelName + "'");
         next();
     });
 }
@@ -284,7 +286,7 @@ function finalize() {
                     return;
                 }
 
-                console.log("Model '" + modelName + "' initialized. To add a device run: 'imp devices -a <deviceId>'");
+                console.log("Model '" + modelName + "' initialized. To add a device run: `imp devices -a <deviceId>`");
             });
         });
     }
