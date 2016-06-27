@@ -83,7 +83,7 @@ function modelPrompt(next) {
             return;
         }
 
-        // Yry to get model by ID
+        // Try to get model by ID
         imp.getModel(val, function(err, data) {
             if (!err) {
                 prompt("Found an existing model: '" + data.model.name + "'. Use this? (y/n) ", function(confirm) {
@@ -127,7 +127,7 @@ function modelPrompt(next) {
                             return;
                         });
                     } else {
-                        prompt("Create new model: '" + val + "'? (y/n) ", function(confirm) {
+                        prompt("Create model '" + val + "'? (y/n) ", function(confirm) {
                             if (confirm && confirm.toLowerCase()[0] != "y") {
                                 modelPrompt(next);
                                 return;
@@ -174,6 +174,7 @@ function getDevices(next) {
             }
         }
 
+		// Save current list of model's devices locally
         config.setLocal("devices", devices);
 
         var devicesText = devices.length == 1 ? "device" : "devices"
@@ -215,7 +216,7 @@ function finalize() {
     if (modelId != null) {
         imp.getModelRevisions(modelId, null, function(err, data) {
             if (err) {
-                console.log("ERROR: Could not fetch code revisions for this model");
+                console.log("ERROR: Could not fetch code revisions for model '" + modelName + "'");
                 return;
             }
 
@@ -226,7 +227,7 @@ function finalize() {
                         return;
                     }
 
-                    console.log("Model initialized. To add a device run: 'imp devices -a <deviceID>'");
+                    console.log("Model '" + modelName + "' initialized. To add a device run: 'imp devices -a <deviceID>'");
                 });
 
                 return;
@@ -234,7 +235,7 @@ function finalize() {
 
             imp.getModelRevision(modelId, data.revisions[0].version, function(err, data) {
                 if (err) {
-                    console.log("ERROR: Could not fetch code revisions for this model");
+                    console.log("ERROR: Could not fetch the latest build for model '" + modelName + "'");
                     return;
                 }
 
@@ -261,7 +262,7 @@ function finalize() {
                         return;
                     }
 
-                    console.log("Model initialized. To add a device run: 'imp devices -a <deviceID>'");
+                    console.log("Model '" + modelName + "' initialized. To add a device run: 'imp devices -a <deviceID>'");
                 });
             });
         });
@@ -283,7 +284,7 @@ function finalize() {
                     return;
                 }
 
-                console.log("Model initialized. To add a device run: 'imp devices -a <deviceId>'");
+                console.log("Model '" + modelName + "' initialized. To add a device run: 'imp devices -a <deviceId>'");
             });
         });
     }
