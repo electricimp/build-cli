@@ -25,12 +25,13 @@ var messageFormat = {
 program
     .option("-d, --device <deviceID>", "The device ID you would like to see logs for")
     .option("-t, --title <deviceName>", "The device name you would like to see logs for")
-// Note: can't use 'name' as an option - it's reserved
+    .option("-l, --list", "Present the most recent logs rather than a stream")
+    // Note: can't use 'name' as an option - it's reserved
 
 program.parse(process.argv);
 
 if (!("device" in program || "title" in program)) {
-    // log requires a device name or ID
+    // log requires a device name or a device ID
     console.log("ERROR: You must specify a device with '-d <deviceID>' or '-t <deviceName>'");
     return;
 }
@@ -54,8 +55,23 @@ function formatMessage(log) {
          + colors.grey(log.message);
 }
 
-function startLog(deviceID) {
+function startLogStream(deviceID) {
     imp.streamDeviceLogs(deviceID, function(err, data) {
+        if (err) {
+            console.log("ERROR: " + err.message_short);
+            return;
+        }
+
+        if ("logs" in data) {
+            data.logs.forEach(function(log) {
+                console.log(formatMessage(log));
+            });
+        }
+    });
+}
+
+function getLogs(deviceID) {
+    imp.getDeviceLogs(deviceID, null, function(err, data) {
         if (err) {
             console.log("ERROR: " + err.message_short);
             return;
@@ -76,10 +92,10 @@ config.init(["apiKey"], function(err, success) {
     }
 
     imp = config.createImpWithConfig();
+    var devId = null;
 
     if ("title" in program) {
-        // Convert passed in device name to a device ID
-        var devId = null;
+        // Convert passed in device name to a device ID and then start logging
         imp.getDevices(null, function(err, data) {
             if (err) {
                 console.log("ERROR: " + err.message_short);
@@ -90,15 +106,26 @@ config.init(["apiKey"], function(err, success) {
                 if (device.name == program.title) devId = device.id;
             });
 
-            if (devId) {
-                console.log("Opening stream for device '" + program.title + "'. Hit Ctrl-C to quit logging");
-                startLog(devId);
-            } else {
+            if (!devId) {
                 console.log("ERROR: There is no device of name '" + program.title + "'");
+                return;
             }
         });
+    } else if ("device" in program) {
+        // Just use the passed in ID; we'll check for a valid ID later
+        devId = program.device;
+    }
+
+    if ("list" in program) {
+        // User wants a log dump
+        getLogs(devId);
     } else {
-        console.log("Opening stream for device '" + program.device + "'. Hit Ctrl-C to quit logging");
-        startLog(program.device);
+        if ("title" in program) {
+            console.log("Opening stream for device '" + program.title + "'. Hit Ctrl-C to quit logging");
+        } else {
+            console.log("Opening stream for device '" + program.device + "'. Hit Ctrl-C to quit logging");
+        }
+
+        startLogStream(devId);
     }
 });
