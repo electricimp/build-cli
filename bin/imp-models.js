@@ -13,6 +13,7 @@ var config = new ImpConfig();
 program
     .option("--active", "Filters list to only display active models")
     .option("--inactive", "Filters list to only display inactive models")
+    .option("-d, --device <deviceID/deviceName>", "Lists the model to which the device is assigned (if any)")
 
 program.parse(process.argv);
 
@@ -29,9 +30,15 @@ config.init(["apiKey"], function(err, success) {
         return;
     }
 
+    if ("inactive" in program && "device" in program) {
+        console.log("ERROR: You cannot specify --device and --inactive");
+        return;
+    }
+
     var activeState = null;
     if ("active" in program) activeState = true;
     if ("inactive" in program) activeState = false;
+    if ("device" in program) activeState = null;
 
     imp.getModels(null, function(err, modelData) {
         if (err) {
@@ -49,7 +56,26 @@ config.init(["apiKey"], function(err, success) {
             modelData.models.some(function(model) {
                 if (activeState == null) {
                     // Not filtering by state, so just push it to the list
-                    filteredModels.push(model);
+                    if ("device" in program) {
+                        // We have a device specified is it an ID?
+                        deviceData.devices.some(function(device) {
+                            if (device.id == program.device) {
+                                if (device.model_id == model.id) filteredModels.push(model);
+                                return true;
+                            }
+                        });
+
+                        // An ID has been passed, but it didn't match,
+                        // so was it a device name? Match on lower case
+                        deviceData.devices.some(function(device) {
+                            if (device.name.toLowerCase() == program.device.toLowerCase()) {
+                                if (device.model_id == model.id) filteredModels.push(model);
+                                return true;
+                            }
+                        });
+                    } else {
+                        filteredModels.push(model);
+                    }
                 } else if (activeState) {
                     // Filtering by state == active, so check for
                     // device associations
@@ -78,6 +104,12 @@ config.init(["apiKey"], function(err, success) {
             });
 
             if (filteredModels.length > 0) {
+                if ("device" in program) {
+                    // A device can only have one model, so list that
+                    console.log("Device '" + program.device + "' is assigned to model '" + filteredModels[0].name + "' (ID: " + filteredModels[0].id + ")");
+                    return;
+                }
+
                 // We have models to list, so create the list as a table
                 var table = new Table({
                     head: ['Model ID', 'Model Name']
@@ -91,7 +123,7 @@ config.init(["apiKey"], function(err, success) {
                 console.log(table.toString());
             } else {
                 // Report there are no found models
-                console.log("No models meet your filter criteria");
+                console.log("No models meet your search criteria");
             }
         });
     });
