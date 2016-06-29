@@ -242,7 +242,7 @@ function getDevices(next) {
 
         // Display number of devices (if any) associated with this model
         var devicesText = devices.length == 1 ? "device" : "devices";
-        var devicesLen = devices.length == 0 ? "no" : devices.len;
+        var devicesLen = devices.length == 0 ? "no" : devices.length;
         console.log("Found " + devicesLen + " " + devicesText + " associated with model '" + modelName + "'");
         next();
     });
