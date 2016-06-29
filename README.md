@@ -4,6 +4,8 @@
 
 # Installation
 
+*build-cli* requires *node* and *npm* &mdash; see [Nodejs.org](https://nodejs.org/en/) for installation instructions. With *node* and *npm* installed enter the following:
+
 ```
 npm install -g build-cli
 ```
@@ -47,7 +49,12 @@ For further information, including a more detailed guide to using *build-cli*, p
 
 ### 0.3.1
 
-- Minor changes
+- *log* now has `-l`, `--list` option to retrieve a device's log entries in bulk (up to 200 entries)
+- *new* now allows you to specify a new model name using `-t`, `--title`
+- *devices* now allows you to specify a model name or ID using `-m`, `--model`
+- *models* now allows you to view the model a device is assigned to using `-d`, `--device`
+- Support for *build-api* 0.3.1
+- Minor code changes
 
 ### 0.3.0
 
