@@ -53,6 +53,7 @@ For further information, including a more detailed guide to using *build-cli*, p
 - *new* now allows you to specify a new model name using `-t`, `--title`
 - *devices* now allows you to specify a model name or ID using `-m`, `--model`
 - *models* now allows you to view the model a device is assigned to using `-d`, `--device`
+- Better table coloring for *devices* and *models*
 - Support for *build-api* 0.3.1
 - Minor code changes
 
