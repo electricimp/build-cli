@@ -5,6 +5,7 @@
 var program = require("commander");
 var prompt = require("cli-prompt");
 var Table = require("cli-table");
+var colors = require("colors");
 var fs = require("fs");
 
 var ImpConfig = require("../lib/impConfig.js");
@@ -111,13 +112,19 @@ config.init(["apiKey"], function(err, success) {
                 }
 
                 // We have models to list, so create the list as a table
+                var header = ['Model Name', 'Model ID'];
+                for (var index in header) {
+                    // Set the header colour
+                    header[index] = header[index].cyan;
+                }
+
                 var table = new Table({
-                    head: ['Model ID', 'Model Name']
-                    , colWidths: [20, 30]
+                    head: header
+                    , colWidths: [30, 20]
                 });
 
                 filteredModels.forEach(function(model) {
-                    table.push([model.id, model.name]);
+                    table.push([model.name, model.id]);
                 })
 
                 console.log(table.toString());
