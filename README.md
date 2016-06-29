@@ -73,4 +73,4 @@ For further information, including a more detailed guide to using *build-cli*, p
 
 *build-cli* is licensed under the [MIT License](./LICENSE).
 
-*build-cli* is based on [*imp-cli*](https://github.com/cat-haines/imp-cli) and [*imp-api*](https://github.com/cat-haines/imp-api) by Cat Haines. *imp-cli* and *imp-api* are copyright &copy; Cat Haines, 2015. *build-cli* is copyright &copy; cat Haines, 2015 and copyright &copy; Electrc Imp Inc., 2015-16.
+*build-cli* is based on [*imp-cli*](https://github.com/cat-haines/imp-cli) and [*imp-api*](https://github.com/cat-haines/imp-api) by Cat Haines. *imp-cli* and *imp-api* are copyright &copy; Cat Haines, 2015. *build-cli* is copyright &copy; Cat Haines, 2015 and copyright &copy; Electrc Imp Inc., 2015-16.
