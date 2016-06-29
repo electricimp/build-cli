@@ -3,6 +3,7 @@
 var program = require("commander");
 var prompt = require("cli-prompt");
 var Table = require("cli-table");
+var colors = require("colors");
 var fs = require("fs");
 
 var ImpConfig = require("../lib/impConfig.js");
@@ -84,10 +85,23 @@ function listModelDevices() {
 
         if (filteredDevices.length > 0) {
             // We have at least one device to list, so build the display table
+            var header = ['Device ID', 'Device Name', 'State'];
+            for (var index in header) {
+                // Set the header colour
+                header[index] = header[index].cyan;
+            }
+
             var table = new Table({
-                head: ['Device ID', 'Device Name', 'State'],
-                colWidths: [20, 30, 10]
+                head: header,
+                colWidths: [20, 30, 11]
             });
+
+			// Set the state colours: black-on-green for online, black-on-red for offline
+            if (device.powerstate == "online") {
+                	device.powerstate = colors.bgGreen.black(" " + device.powerstate + "  ");
+                } else if (device.powerstate == "offline") {
+                	device.powerstate = colors.bgRed.black(" " + device.powerstate + " ");
+                }
 
             filteredDevices.forEach(function(device) {
                 table.push([
@@ -143,14 +157,27 @@ function listDevices() {
 
         if (filteredDevices.length > 0) {
             // We have at least one device to list, so build the display table
+            var header = ['Device ID', 'Device Name', 'Model ID', 'State'];
+			for (var index in header) {
+            	// Set the header colour
+            	header[index] = header[index].cyan;
+            }
+
             var table = new Table({
-                head: ['Device ID', 'Device Name', 'Model ID', 'State']
-                , colWidths: [20, 30, 14, 10]
+                head: header
+                , colWidths: [20, 30, 16, 11]
             });
 
             filteredDevices.forEach(function(device) {
                 // Skip devices with null ID (can't do anything with them anyway)
                 if (!device.id) return;
+
+                // Set the state colours: black-on-green for online, black-on-red for offline
+            	if (device.powerstate == "online") {
+                	device.powerstate = colors.bgGreen.black(" " + device.powerstate + "  ");
+                } else if (device.powerstate == "offline") {
+                	device.powerstate = colors.bgRed.black(" " + device.powerstate + " ");
+                }
 
                 table.push([
                     device.id,
