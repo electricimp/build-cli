@@ -1,4 +1,4 @@
-# build-cli 0.3.1
+# build-cli 0.3.2
 
 *build-cli* allows you to manage your Electric Imp development from a command line through Electric Imp’s [Build API](https://electricimp.com/docs/buildapi).
 
@@ -46,6 +46,10 @@ You will next be prompted for the name of the project. This can match an existin
 For further information, including a more detailed guide to using *build-cli*, please see [the Electric Imp Dev Center](https://electricimp.com/docs/buildapi/buildcli/).
 
 # Release History
+
+### 0.3.2
+
+- *log* bug fix
 
 ### 0.3.1
 

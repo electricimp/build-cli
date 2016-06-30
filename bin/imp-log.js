@@ -85,6 +85,21 @@ function getLogs(deviceID) {
     });
 }
 
+function selectLogType(deviceID) {
+    if ("list" in program) {
+        // User wants a log dump
+        getLogs(deviceID);
+    } else {
+        if ("title" in program) {
+            console.log("Opening stream for device name '" + program.title + "'. Hit Ctrl-C to quit logging");
+        } else {
+            console.log("Opening stream for device ID '" + program.device + "'. Hit Ctrl-C to quit logging");
+        }
+
+        startLogStream(deviceID);
+    }
+}
+
 config.init(["apiKey"], function(err, success) {
     if (err) {
         console.log("ERROR: Global Build API key is not set. Run 'imp setup' then try 'imp log' again");
@@ -92,7 +107,6 @@ config.init(["apiKey"], function(err, success) {
     }
 
     imp = config.createImpWithConfig();
-    var devId = null;
 
     if ("title" in program) {
         // Convert passed in device name to a device ID and then start logging
@@ -102,30 +116,20 @@ config.init(["apiKey"], function(err, success) {
                 return;
             }
 
+            var devId = null;
             data.devices.forEach(function(device) {
-                if (device.name == program.title) devId = device.id;
+                if (device.name.toLowerCase() == program.title.toLowerCase()) devId = device.id;
             });
 
-            if (!devId) {
+            if (devId == null) {
                 console.log("ERROR: There is no device of name '" + program.title + "'");
                 return;
             }
+
+            selectLogType(devId);
         });
     } else if ("device" in program) {
         // Just use the passed in ID; we'll check for a valid ID later
-        devId = program.device;
-    }
-
-    if ("list" in program) {
-        // User wants a log dump
-        getLogs(devId);
-    } else {
-        if ("title" in program) {
-            console.log("Opening stream for device '" + program.title + "'. Hit Ctrl-C to quit logging");
-        } else {
-            console.log("Opening stream for device '" + program.device + "'. Hit Ctrl-C to quit logging");
-        }
-
-        startLogStream(devId);
+        selectLogType(program.device);
     }
 });
