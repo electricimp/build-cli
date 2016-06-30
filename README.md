@@ -49,6 +49,8 @@ For further information, including a more detailed guide to using *build-cli*, p
 
 ### 0.3.2
 
+- *log* bug fix
+
 ### 0.3.1
 
 - *log* now has `-l`, `--list` option to retrieve a device's log entries in bulk (up to 200 entries)
