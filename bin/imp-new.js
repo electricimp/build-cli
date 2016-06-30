@@ -20,7 +20,6 @@ program
     .on("--help", function() {
         console.log("  Usage:");
         console.log("");
-        console.log("    imp new -g\t\tAgent and device code files will not be overwritten");
         console.log("    imp new -k\t\tAgent and device code files will not be overwritten");
         console.log("    imp new -k device\tDevice code file will not be overwritten");
         console.log("    imp new -k agent\tAgent code file will not be overwritten");
