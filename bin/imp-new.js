@@ -13,8 +13,9 @@ var imp;
 
 program
     .option("-f, --force", "Overwrites existing .impconfig file")
-    .option("-k, --keep [options]", "Prevents code files from being overwritten during initialization")
     .option("-g, --global", "Uses your global API key and prevents a local API key from being written to .impconfig")
+    .option("-k, --keep [options]", "Prevents code files from being overwritten during initialization")
+    .option("-t, --title <projectName>", "Create a new project and model with the supplied name")
 
     .on("--help", function() {
         console.log("  Usage:");
@@ -30,14 +31,15 @@ function apiKeyPrompt(apiKey, next) {
     if ("global" in program) {
         // If 'apiKey' isn't set in the global config, log error and return
         if (!config.getGlobal("apiKey")) {
-            console.log("ERROR: Global Build API key is not set - run 'imp setup' then try 'imp new' again");
+            console.log("ERROR: Global Build API key is not set. Run 'imp setup' then try 'imp new' again");
             return;
         }
 
         imp = config.createImpWithConfig();
+        // Use a false value to test the API key
         imp.getDevices({ "device_id" : "garbage" }, function(err, data) {
             if (err) {
-                // Clear API key and try again
+                // API key is wrong, so ask again
                 imp.apiKey = null;
                 console.log("ERROR: Invalid Build API key");
                 apiKeyPrompt(apiKey, next);
@@ -50,6 +52,7 @@ function apiKeyPrompt(apiKey, next) {
         return;
     }
 
+    // Display/request local Build API key
     var promptText = "Build API key";
     if (apiKey) {
         promptText += " (" + apiKey + "): ";
@@ -60,11 +63,12 @@ function apiKeyPrompt(apiKey, next) {
     prompt(promptText, function(val) {
         if (apiKey && !val) val = apiKey;
         config.setLocal("apiKey", val);
-
         imp = config.createImpWithConfig();
+
+        // Use a false value to test the API key
         imp.getDevices({ "device_id" : "garbage" }, function(err, data) {
             if (err) {
-                // Clear API key and try again
+                // API key is wrong, so ask again
                 imp.apiKey = null;
                 console.log("ERROR: Invalid Build API key");
                 apiKeyPrompt(apiKey, next);
@@ -83,11 +87,14 @@ function modelPrompt(next) {
             return;
         }
 
-        // Try to get model by ID
+        // Assume the user has passed in an ID - check if it exists
         imp.getModel(val, function(err, data) {
             if (!err) {
-                prompt("Found an existing model: '" + data.model.name + "'. Use this? (y/n) ", function(confirm) {
+                // The user DID supply a model ID and it matches an existing one
+                prompt("There is an existing model, '" + data.model.name + "', with the ID you supplied. Use this? (y/n) ", function(confirm) {
                     if (confirm && confirm.toLowerCase()[0] != "y") {
+                        // User doesn't want to use the existing model,
+                        // so force them to choose a new name
                         modelPrompt(next);
                         return;
                     }
@@ -98,14 +105,15 @@ function modelPrompt(next) {
                     return;
                 });
             } else {
-                // An error means no model_id match was found
+                // An error means there was no match to a model ID,
+                // so perhaps a name was supplied: compare it to the list of models
                 imp.getModels({ "name": val }, function(err, data) {
                     if (err) {
-                        console.log("ERROR: Could not match the model ID");
+                        console.log("ERROR: Could not get a list of your models from the impCloud");
                         return;
                     }
 
-                    // See if we found a matching result
+                    // See if the supplied model name matches an existing one
                     var foundMatch = false;
                     for (var i = 0 ; i < data.models.length ; i++) {
                         if (data.models[i].name.toLowerCase() == val.toLowerCase()) {
@@ -115,8 +123,11 @@ function modelPrompt(next) {
                     }
 
                     if (foundMatch) {
-                        prompt("Found an existing model: '" + data.models[i].name + "'. Use this? (y/n) ", function(confirm){
+                        // The user has supplied a name that already exists
+                        prompt("There is an existing model, '" + data.models[i].name + "', with the ID you supplied. Use this? (y/n) ", function(confirm){
                             if (confirm && confirm.toLowerCase()[0] != "y") {
+                                // User doesn't want to use the existing model,
+                                // so force them to choose a new name
                                 modelPrompt(next);
                                 return;
                             }
@@ -127,6 +138,8 @@ function modelPrompt(next) {
                             return;
                         });
                     } else {
+                        // The user has supplied a name that doesn't exist, so
+                        // create a new model with that name
                         prompt("Create model '" + val + "'? (y/n) ", function(confirm) {
                             if (confirm && confirm.toLowerCase()[0] != "y") {
                                 modelPrompt(next);
@@ -135,7 +148,7 @@ function modelPrompt(next) {
 
                             imp.createModel(val, function(err, data) {
                                 if (err) {
-                                    console.log("ERROR: Could not create model");
+                                    console.log("ERROR: Could not create model '" + data.model.name + "'");
                                     return;
                                 }
 
@@ -153,6 +166,56 @@ function modelPrompt(next) {
     });
 }
 
+function newModelPrompt(next) {
+    // We have a model name, parsed as 'program.title'
+    imp.getModels({ "name": program.title }, function(err, data) {
+        if (err) {
+            console.log("ERROR: Could not get a list of your models from the impCloud");
+            return;
+        }
+
+        // See if the supplied model name matches an existing one
+        var foundMatch = false;
+        for (var i = 0 ; i < data.models.length ; i++) {
+            if (data.models[i].name.toLowerCase() == program.title.toLowerCase()) {
+                foundMatch = true;
+                break;
+            }
+        }
+
+        if (foundMatch) {
+            // The user has supplied a name that already exists
+            prompt("You already have a model with the name '" + data.models[i].name + "'. Use this? (y/n) ", function(confirm) {
+                if (confirm && confirm.toLowerCase()[0] != "y") {
+                    // User doesn't want to use the existing model, so get a new name
+                    modelPrompt(next);
+                    return;
+                }
+
+                config.setLocal("modelId", data.models[i].id);
+                config.setLocal("modelName", data.models[i].name);
+                next();
+                return;
+            });
+        } else {
+            // The user has supplied a name that doesn't exist, so
+            // create a new model with that name
+            imp.createModel(program.title, function(err, data) {
+                if (err) {
+                    console.log("ERROR: Could not create model '" + program.title + "'");
+                    return;
+                }
+
+                config.setLocal("modelName", data.model.name);
+                config.setLocal("modelId", data.model.id);
+                next();
+            });
+
+            return;
+        }
+    });
+}
+
 function getDevices(next) {
     var modelId = config.getLocal("modelId");
     var modelName = config.getLocal("modelName");
@@ -163,7 +226,7 @@ function getDevices(next) {
 
     imp.getDevices({ "model_id": modelId }, function(err, data) {
         if (err) {
-            console.log("WARNING: Could not fetch devices assigned to model '" + modelName + "'");
+            console.log("ERROR: Could not fetch a list of devices assigned to model '" + modelName + "'");
             next();
         }
 
@@ -179,7 +242,7 @@ function getDevices(next) {
 
         // Display number of devices (if any) associated with this model
         var devicesText = devices.length == 1 ? "device" : "devices";
-        var devicesLen = devices.length == 0 ? "no" : devices.len;
+        var devicesLen = devices.length == 0 ? "no" : devices.length;
         console.log("Found " + devicesLen + " " + devicesText + " associated with model '" + modelName + "'");
         next();
     });
@@ -205,6 +268,44 @@ function fileNamePrompt(next) {
         config.setLocal("agentFile", data.agentFile || defaultAgentFileName);
         next();
     });
+}
+
+function makeFiles() {
+    var deviceCode = "# Device Code";
+    var agentCode = "# Agent Code";
+    var modelId = config.getLocal("modelId");
+    var modelName = config.getLocal("modelName");
+    var agentFile = config.getLocal("agentFile");
+    var deviceFile = config.getLocal("deviceFile");
+
+    if (modelId != null) {
+        if ("keep" in program && keep === true) {
+            // Don't overwrite any saved code UNLESS files don't exist
+            if (!fs.existsSync(agentFile)) fs.writeFile(agentFile, agentCode);
+            if (!fs.existsSync(deviceFile)) fs.writeFile(deviceFile, deviceCode);
+        } else if ("keep" in program && program.keep == "device") {
+            // Only overwrite the agent code
+            fs.writeFile(agentFile, agentCode);
+        } else if ("keep" in program && program.keep == "agent") {
+            // Only overwrite the device code
+            fs.writeFile(deviceFile, deviceCode);
+        } else {
+            // Overwrite both agent code and device code
+            fs.writeFile(deviceFile, deviceCode);
+            fs.writeFile(agentFile, agentCode);
+        }
+
+        config.saveLocalConfig(function(err) {
+            if (err) {
+                console.log("ERROR: " + err);
+                return;
+            }
+
+            console.log("Model '" + modelName + "' initialized. To add a device run: 'imp devices -a <deviceID>'");
+        });
+    } else {
+        console.log("ERROR: Could not create model's code files");
+    }
 }
 
 function finalize() {
@@ -299,13 +400,25 @@ config.init(null, function() {
         return;
     }
 
-    apiKeyPrompt(this.get("apiKey"), function() {
-        modelPrompt(function() {
-            getDevices(function() {
+    if ("title" in program) {
+        // User has supplied a specific model name, so use this rather
+        // than ask for one
+        apiKeyPrompt(this.get("apiKey"), function() {
+            newModelPrompt(function() {
                 fileNamePrompt(function() {
-                    finalize();
+                    makeFiles();
                 });
             });
         });
-    });
+    } else {
+        apiKeyPrompt(this.get("apiKey"), function() {
+            modelPrompt(function() {
+                getDevices(function() {
+                    fileNamePrompt(function() {
+                        finalize();
+                    });
+                });
+            });
+        });
+    }
 }.bind(config));

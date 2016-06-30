@@ -60,11 +60,11 @@ config.init(["apiKey", "modelId", "agentFile", "deviceFile",], function(err, suc
 
         // Now we have uploaded code, restart the model
         imp.restartModel(config.get("modelId"), function(err, restartData) {
-            console.log("Uploaded the latest model code as build " + data.revision.version);
+            console.log("Uploaded the latest '" + config.getLocal("modelName") + "' code as build " + data.revision.version);
             if (err) {
-                console.log("WARNING: Could not restart the model’s devices");
+                console.log("WARNING: Could not restart the devices assigned to model '" + config.getLocal("modelName") + "'");
             } else {
-                console.log("Restarted the model’s devices with the new code");
+                console.log("Restarted the devices assigned to model '" + config.getLocal("modelName") + "' with the new code");
             }
         });
     });

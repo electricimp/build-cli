@@ -1,8 +1,10 @@
-# build-cli 0.3.0
+# build-cli 0.3.1
 
 *build-cli* allows you to manage your Electric Imp development from a command line through Electric Imp’s [Build API](https://electricimp.com/docs/buildapi).
 
 # Installation
+
+*build-cli* requires *node* and *npm* &mdash; see [Nodejs.org](https://nodejs.org/en/) for installation instructions. With *node* and *npm* installed enter the following:
 
 ```
 npm install -g build-cli
@@ -45,15 +47,26 @@ For further information, including a more detailed guide to using *build-cli*, p
 
 # Release History
 
+### 0.3.1
+
+- *log* now has `-l`, `--list` option to retrieve a device's log entries in bulk (up to 200 entries)
+- *new* now allows you to specify a new model name using `-t`, `--title`
+- *devices* now allows you to specify a model name or ID using `-m`, `--model`
+- *models* now allows you to view the model a device is assigned to using `-d`, `--device`
+- General textual improvements
+- Support for *build-api* 0.3.1
+- Minor code changes
+
 ### 0.3.0
 
 - *init* command renamed *new*
 - *login* command renamed *setup*
 - Improved feedback messaging
 - *log* now has `-t`, `--title` option to log devices by name rather than device ID (`-d`, `--device`)
+- *devices* now has `-c`, `--current` option to list the devices assigned to the current project
 - Support for *build-api* 0.3.0
 
-### 0.2.8
+### 0.2.4
 
 - Initial release of Electric Imp fork of *imp-cli*, *build-cli*.
 
@@ -61,4 +74,4 @@ For further information, including a more detailed guide to using *build-cli*, p
 
 *build-cli* is licensed under the [MIT License](./LICENSE).
 
-*build-cli* is based on [*imp-cli*](https://github.com/cat-haines/imp-cli) and [*imp-api*](https://github.com/cat-haines/imp-api) by Cat Haines. *imp-cli* and *imp-api* are copyright &copy; Cat Haines, 2015. *build-cli* is copyright &copy; cat Haines, 2015 and copyright &copy; Electrc Imp Inc., 2015-16.
+*build-cli* is based on [*imp-cli*](https://github.com/cat-haines/imp-cli) and [*imp-api*](https://github.com/cat-haines/imp-api) by Cat Haines. *imp-cli* and *imp-api* are copyright &copy; Cat Haines, 2015. *build-cli* is copyright &copy; Cat Haines, 2015 and copyright &copy; Electrc Imp Inc., 2015-16.

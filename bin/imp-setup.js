@@ -52,7 +52,8 @@ function apiKeyPrompt(apiKey) {
                 }
 
                 console.log("Wrote global configuration to ~/.impconfig");
-                console.log("To create a new project, create a directory for the project");
+                console.log("To create a new local project, create a directory for the ");
+                console.log("project, change into that directory and run 'imp new'");
             });
         });
     });
