@@ -35,7 +35,7 @@ function checkModelName(next) {
             // so perhaps a name was supplied: compare it to the list of models
             imp.getModels({ "name": program.model }, function(err, data) {
                 if (err) {
-                    console.log("ERROR: '" + program.model + "' does not match any of your models");
+                    console.log("ERROR: The name '" + program.model + "' does not match any of your current models");
                     return;
                 }
 
@@ -54,7 +54,7 @@ function checkModelName(next) {
                     next();
                 } else {
                     // The user has supplied a name that doesn't exist
-                    console.log("ERROR: '" + program.model + "' does not match any of your models");
+                    console.log("ERROR:  The name '" + program.model + "' does not match any of your current models");
                     return;
                 }
             });
@@ -114,14 +114,10 @@ function listModelDevices() {
             console.log(table.toString());
         } else {
             // Report that there are no found devices
-            if (data.devices.length == 0) {
-                console.log("There are no devices assigned to model '" + program.model + "'");
-                return;
-            }
+            if (data.devices.length == 0) powerState = null;
 
-            var message = "There are no ";
-            if (powerState) message = message + powerState + " ";
-            message += "devices that are assigned to model '" + program.model + "'"
+            var message = "There are no devices assigned to model '" + program.model + "'";
+            if (powerState) message = messge + " that are " + powerState;
             console.log(message);
         }
     });
@@ -191,6 +187,7 @@ function listDevices() {
         } else {
             // Report that there are no found devices
             if (data.devices.length == 0) {
+                // There are no devices assigned to the model at all
                 console.log("There are no devices assigned to model '" + program.model + "'");
                 return;
             }
@@ -212,12 +209,12 @@ function listDevices() {
 
 config.init(["apiKey"], function(err, success) {
     if (err) {
-        console.log("ERROR: Global Build API key is not set - run 'imp setup' then try 'imp devices' again");
+        console.log("ERROR: Global Build API key is not set. Run 'imp setup' then try 'imp devices' again");
         return;
     }
 
     if ("add" in program && "remove" in program) {
-        console.log("ERROR: You cannot specifiy -a and -d");
+        console.log("ERROR: You cannot specifiy options -add and --remove");
         return;
     }
 
@@ -227,8 +224,7 @@ config.init(["apiKey"], function(err, success) {
     // Add a device to the current project's model
     if ("add" in program) {
         if (!config.getLocal("devices")) {
-            console.log("ERROR: Devices list missing from local .impconfig");
-            console.log("       Run 'imp pull -d' to update this project's list of devices");
+            console.log("ERROR: Local device list missing. Run 'imp pull -d' to create the device list");
             return;
         }
 
@@ -270,8 +266,7 @@ config.init(["apiKey"], function(err, success) {
     // Remove a device from the current project's model
     if ("remove" in program) {
         if (!config.get("devices")) {
-            console.log("ERROR: Devices list missing from local .impconfig");
-            console.log("       Run 'imp pull -d' to update this project's list of devices");
+            console.log("ERROR: Local device list missing. Run 'imp pull -d' to create the device list");
             return;
         }
 
@@ -291,7 +286,7 @@ config.init(["apiKey"], function(err, success) {
         }
 
         if (index == null) {
-            console.log("The device '" + program.remove + "' is not assigned to this model");
+            console.log("The device '" + program.remove + "' is not assigned to model '" + modelName + "'");
             return;
         }
 
@@ -317,32 +312,32 @@ config.init(["apiKey"], function(err, success) {
 
     // List devices
     if ("unassigned" in program && "assigned" in program) {
-        console.log("ERROR: You cannot specify --assigned and --unassigned");
+        console.log("ERROR: You cannot specify options --assigned and --unassigned");
         return;
     }
 
     if ("online" in program && "offline" in program) {
-        console.log("ERROR: You cannot specify --offline and --online");
+        console.log("ERROR: You cannot specify options --offline and --online");
         return;
     }
 
     if ("unassigned" in program && "current" in program) {
-        console.log("ERROR: You cannot specify --current and --unassigned");
+        console.log("ERROR: You cannot specify options --current and --unassigned");
         return;
     }
 
     if ("unassigned" in program && "model" in program) {
-        console.log("ERROR: You cannot specify --model and --unassigned");
+        console.log("ERROR: You cannot specify options --model and --unassigned");
         return;
     }
 
     if ("unassigned" in program && "model" in program) {
-        console.log("ERROR: You cannot specify --unassigned and --model");
+        console.log("ERROR: You cannot specify options --unassigned and --model");
         return;
     }
 
     if ("current" in program && !(config.getLocal("modelId"))) {
-        console.log("ERROR: You cannot use --current outside of a project directory");
+        console.log("ERROR: You cannot use option --current outside of a project directory");
         return;
     }
 
