@@ -62,9 +62,9 @@ config.init(["apiKey", "modelId", "agentFile", "deviceFile",], function(err, suc
         imp.restartModel(config.get("modelId"), function(err, restartData) {
             console.log("Uploaded the latest '" + config.getLocal("modelName") + "' code as build " + data.revision.version);
             if (err) {
-                console.log("WARNING: Could not restart '" + config.getLocal("modelName") + "'s devices");
+                console.log("WARNING: Could not restart the devices assigned to model '" + config.getLocal("modelName") + "'");
             } else {
-                console.log("Restarted '" + config.getLocal("modelName") + "' devices with the new code");
+                console.log("Restarted the devices assigned to model '" + config.getLocal("modelName") + "' with the new code");
             }
         });
     });
