@@ -137,7 +137,7 @@ config.init(["apiKey"], function(err, success) {
                     if (program.device) message += "and ";
                 }
 
-                if (program.device) message += "assigned to '" + program.device + "'";
+                if (program.device) message += "assigned to device '" + program.device + "'";
                 console.log(message); 
             }
         });
