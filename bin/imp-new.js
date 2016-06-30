@@ -20,6 +20,7 @@ program
     .on("--help", function() {
         console.log("  Usage:");
         console.log("");
+        console.log("    imp new -g\t\tAgent and device code files will not be overwritten");
         console.log("    imp new -k\t\tAgent and device code files will not be overwritten");
         console.log("    imp new -k device\tDevice code file will not be overwritten");
         console.log("    imp new -k agent\tAgent code file will not be overwritten");
@@ -31,7 +32,7 @@ function apiKeyPrompt(apiKey, next) {
     if ("global" in program) {
         // If 'apiKey' isn't set in the global config, log error and return
         if (!config.getGlobal("apiKey")) {
-            console.log("ERROR: Global Build API key is not set - run 'imp setup' then try 'imp new' again");
+            console.log("ERROR: Global Build API key is not set. Run 'imp setup' then try 'imp new' again");
             return;
         }
 
@@ -109,7 +110,7 @@ function modelPrompt(next) {
                 // so perhaps a name was supplied: compare it to the list of models
                 imp.getModels({ "name": val }, function(err, data) {
                     if (err) {
-                        console.log("ERROR: Could not get a list of your models from the server");
+                        console.log("ERROR: Could not get a list of your models from the impCloud");
                         return;
                     }
 
@@ -148,7 +149,7 @@ function modelPrompt(next) {
 
                             imp.createModel(val, function(err, data) {
                                 if (err) {
-                                    console.log("ERROR: Could not create model");
+                                    console.log("ERROR: Could not create model '" + data.model.name + "'");
                                     return;
                                 }
 
@@ -170,7 +171,7 @@ function newModelPrompt(next) {
     // We have a model name, parsed as 'program.title'
     imp.getModels({ "name": program.title }, function(err, data) {
         if (err) {
-            console.log("ERROR: Could not get a list of your models from the server");
+            console.log("ERROR: Could not get a list of your models from the impCloud");
             return;
         }
 
@@ -226,7 +227,7 @@ function getDevices(next) {
 
     imp.getDevices({ "model_id": modelId }, function(err, data) {
         if (err) {
-            console.log("WARNING: Could not fetch devices assigned to model '" + modelName + "'");
+            console.log("ERROR: Could not fetch a list of devices assigned to model '" + modelName + "'");
             next();
         }
 
