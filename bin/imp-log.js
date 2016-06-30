@@ -32,7 +32,7 @@ program.parse(process.argv);
 
 if (!("device" in program || "title" in program)) {
     // log requires a device name or a device ID
-    console.log("ERROR: You must specify a device with '-d <deviceID>' or '-t <deviceName>'");
+    console.log("ERROR: You must specify a device with either '-d <deviceID>' or '-t <deviceName>'");
     return;
 }
 
@@ -87,7 +87,7 @@ function getLogs(deviceID) {
 
 config.init(["apiKey"], function(err, success) {
     if (err) {
-        console.log("ERROR: Global Build API key is not set - run 'imp setup' then try 'imp log' again");
+        console.log("ERROR: Global Build API key is not set. Run 'imp setup' then try 'imp log' again");
         return;
     }
 
