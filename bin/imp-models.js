@@ -130,7 +130,15 @@ config.init(["apiKey"], function(err, success) {
                 console.log(table.toString());
             } else {
                 // Report there are no found models
-                console.log("No models meet your search criteria");
+                var message = "There are no models ";
+
+                if (activeState != null)  {
+                    message += (activeState) ? "that are active " : "that are inactive ";
+                    if (program.device) message += "and ";
+                }
+
+                if (program.device) message += "assigned to '" + program.device + "'";
+                console.log(message);
             }
         });
     });
