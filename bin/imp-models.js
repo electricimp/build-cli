@@ -6,9 +6,11 @@ var program = require("commander");
 var prompt = require("cli-prompt");
 var Table = require("cli-table");
 var colors = require("colors");
-var fs = require("fs");
-
 var ImpConfig = require("../lib/impConfig.js");
+var Spinner = require("cli-spinner").Spinner;
+
+var spinner = new Spinner("Contacting the impCloud... %s");
+spinner.setSpinnerString(5);
 var config = new ImpConfig();
 
 program
@@ -36,6 +38,7 @@ config.init(["apiKey"], function(err, success) {
         return;
     }
 
+    spinner.start();
     var activeState = null;
     if ("active" in program) activeState = true;
     if ("inactive" in program) activeState = false;
@@ -43,12 +46,14 @@ config.init(["apiKey"], function(err, success) {
 
     imp.getModels(null, function(err, modelData) {
         if (err) {
+            spinner.stop(true);
             console.log("ERROR: " + err.message_short);
             return;
         }
 
         imp.getDevices(null, function(err, deviceData) {
             if (err) {
+                spinner.stop(true);
                 console.log("ERROR: " + err.message_short);
                 return;
             }
@@ -108,6 +113,7 @@ config.init(["apiKey"], function(err, success) {
                 // We have model(s) to display
                 if ("device" in program) {
                     // A device can only have one model, so display that
+                    spinner.stop(true);
                     console.log("Device '" + program.device + "' is assigned to model '" + filteredModels[0].name + "' (ID: " + filteredModels[0].id + ")");
                     return;
                 }
@@ -127,6 +133,7 @@ config.init(["apiKey"], function(err, success) {
                     table.push([model.name, model.id]);
                 })
 
+                spinner.stop(true);
                 console.log(table.toString());
             } else {
                 // Report there are no found models
@@ -138,7 +145,8 @@ config.init(["apiKey"], function(err, success) {
                 }
 
                 if (program.device) message += "assigned to device '" + program.device + "'";
-                console.log(message); 
+                spinner.stop(true);
+                console.log(message);
             }
         });
     });
