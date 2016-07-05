@@ -6,9 +6,12 @@ var program = require("commander");
 var prompt = require("cli-prompt");
 var Table = require("cli-table");
 var fs = require("fs");
-
 var ImpConfig = require("../lib/impConfig.js");
+var Spinner = require("cli-spinner").Spinner;
+
 var config = new ImpConfig();
+var spinner = new Spinner("Contacting the impCloud... %s");
+spinner.setSpinnerString(5);
 
 program
     .option("-r, --revision [revision]", "Pulls the specified revision from development account")
@@ -31,7 +34,7 @@ function apiKeyPrompt(env, apiKey, next) {
         config.setLocal(env+"apiKey", val);
 
         imp = config.createImpWithConfig();
-    
+
         // Lookup a bad device_id to make sure the API Key works
         imp.getDevices({ "device_id" : "garbage" }, function(err, data) {
             if (err) {
@@ -62,8 +65,10 @@ function modelPrompt(env, next) {
         }
 
         // Try to get model by ID
+        if (!spinner.isSpinning()) spinner.start();
         imp.getModel(val, function(err, data) {
             if (!err) {
+                spinner.stop(true);
                 prompt("Found an existing model: '" + data.model.name + "'. Use this? (y/n) ", function(confirm) {
                     if (confirm && confirm.toLowerCase()[0] != "y") {
                         modelPrompt(env, next);
@@ -79,6 +84,7 @@ function modelPrompt(env, next) {
                 // An error means no model ID match was found
                 imp.getModels({ "name": val }, function(err, data) {
                     if (err) {
+                        spinner.stop(true);
                         console.log("ERROR: Could not locate the requested model");
                         return;
                     }
@@ -92,6 +98,7 @@ function modelPrompt(env, next) {
                         }
                     }
 
+                    spinner.stop(true);
                     if (foundMatch) {
                         prompt("Found an existing model: '" + data.models[i].name + "'. Use this? (y/n) ", function(confirm){
                             if (confirm && confirm.toLowerCase()[0] != "y") {
@@ -111,7 +118,9 @@ function modelPrompt(env, next) {
                                 return;
                             }
 
+                            spinner.start();
                             imp.createModel(val, function(err, data) {
+                                spinner.stop(true);
                                 if (err) {
                                     console.log("ERROR: Could not create model");
                                     return;
@@ -121,7 +130,7 @@ function modelPrompt(env, next) {
                                 config.setLocal("modelId", data.model.id);
                                 next();
                             });
-                            
+
                             return;
                         });
                     }
@@ -158,12 +167,13 @@ function fileNamePrompt(next) {
 }
 
 function pull(next) {
-    
+
     function getVersion(ver, cb) {
         imp.getModelRevision(config.get("modelId"), ver, cb);
     }
 
     function done(err, data) {
+        if (spinner.isSpinning()) spinner.stop();
         if (err) {
             console.log("ERROR: " + err.message_short);
             return;
@@ -171,22 +181,27 @@ function pull(next) {
             if ("revision" in data) {
                 fs.writeFile(config.get("deviceFile"), data.revision.device_code);
                 fs.writeFile(config.get("agentFile"), data.revision.agent_code);
-                console.log("Pulled code version " + data.revision.version);
+                console.log("Pulled code build " + data.revision.version);
+            } else {
+                console.log("ERROR: Could not get latest code build");
+                return;
             }
         }
-    
+
         next();
     }
 
+    if (!spinner.isSpinning()) spinner.start();
     if ("revision" in program) {
         getVersion(program.revision, done);
     } else {
         imp.getModelRevisions(config.get("modelId"), null, function(err, data) {
             if (err) {
+                spinner.stop(true);
                 console.log("ERROR: Could not get the requested model code");
                 return;
             }
-            
+
             if ("revisions" in data && data.revisions.length > 0) {
                 getVersion(data.revisions[0].version, done);
             }
@@ -201,12 +216,14 @@ function deploy(next) {
         agent_code: null
     };
 
+    if (spinner.isSpinning()) spinner.stop();
+
     // Make sure the code files exist
     if (!fs.existsSync(config.get("agentFile"))) {
         console.log("ERROR: Could not find agent code file: " + config.get("deviceFile"));
         return;
     }
-  
+
     if (!fs.existsSync(config.get("deviceFile"))) {
         console.log("ERROR: Could not find device code file: " + config.get("deviceFile"));
         return;
@@ -215,8 +232,11 @@ function deploy(next) {
     model.agent_code = fs.readFileSync(config.get("agentFile"), "utf8");
     model.device_code = fs.readFileSync(config.get("deviceFile"), "utf8");
 
+    spinner.start();
     imp.createModelRevision(config.get("modelId"), model, function(err, data) {
         if (err) {
+            spinner.stop(true);
+
             if (err.code != "CompileFailed") {
                 console.log(colors.red("ERROR: " + err.message_short));
                 return;
@@ -244,6 +264,7 @@ function deploy(next) {
         }
 
         imp.restartModel(config.get("modelId"), function(err, restartData) {
+            if (spinner.isSpinning()) spinner.stop();
             console.log("Uploaded the latest model code as build " + data.revision.version);
             if (err) {
                 console.log("WARNING: Could not restart the model’s devices");
@@ -255,6 +276,7 @@ function deploy(next) {
 }
 
 function finalize(){
+    if (spinner.isSpinning()) spinner.stop();
     console.log("");
     console.log("=================================================================")
     console.log("Migration complete. Saving local configuration");
