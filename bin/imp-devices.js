@@ -126,7 +126,7 @@ function listModelDevices() {
             // Report that there are no found devices
             if (data.devices.length == 0) powerState = null;
 
-            var message = "There are no devices assigned to model '" + program.model + "'";
+            var message = "You have no devices assigned to model '" + program.model + "'";
             if (powerState) message = messge + " that are " + powerState;
             spinner.stop(true);
             console.log(message);
