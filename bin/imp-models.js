@@ -119,6 +119,8 @@ config.init(["apiKey"], function(err, success) {
                 }
 
                 var header = ['Model Name', 'Model ID'];
+                if ("inactive" in program) header[0] = "Inactive Model Name";
+                if ("active" in program) header[0] = "Active Model Name";
                 for (var index in header) {
                     // Set the header colour
                     header[index] = header[index].cyan;
