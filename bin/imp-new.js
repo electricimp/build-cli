@@ -295,7 +295,7 @@ function makeFiles() {
     var agentFile = config.getLocal("agentFile");
     var deviceFile = config.getLocal("deviceFile");
 
-    if (!spinner.isSpinning()) spinner.stop(true);
+    if (spinner.isSpinning()) spinner.stop(true);
     if (modelId != null) {
         if ("keep" in program && keep === true) {
             // Don't overwrite any saved code UNLESS files don't exist
