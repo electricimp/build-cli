@@ -5,10 +5,12 @@
 var program = require("commander");
 var prompt = require("cli-prompt");
 var fs = require("fs");
-
+var Spinner = require("cli-spinner").Spinner;
 var ImpConfig = require("../lib/impConfig.js");
-var config = new ImpConfig();
 
+var config = new ImpConfig();
+var spinner = new Spinner("Contacting the impCloud... %s");
+spinner.setSpinnerString(5);
 var imp;
 
 program
@@ -36,10 +38,11 @@ function apiKeyPrompt(apiKey, next) {
         }
 
         imp = config.createImpWithConfig();
-        // Use a false value to test the API key
+
+        // Use a false value to test the validity of the API key
         imp.getDevices({ "device_id" : "garbage" }, function(err, data) {
             if (err) {
-                // API key is wrong, so ask again
+                // API key is wrong, so ask for it again
                 imp.apiKey = null;
                 console.log("ERROR: Invalid Build API key");
                 apiKeyPrompt(apiKey, next);
@@ -81,20 +84,23 @@ function apiKeyPrompt(apiKey, next) {
 }
 
 function modelPrompt(next) {
+    // Ask for the project's model ID or model name
     prompt("Model ID or name: ", function(val) {
         if (!val) {
+            // No name/ID provided? Ask again
             modelPrompt(next);
             return;
         }
 
         // Assume the user has passed in an ID - check if it exists
+        spinner.start();
         imp.getModel(val, function(err, data) {
             if (!err) {
                 // The user DID supply a model ID and it matches an existing one
+                spinner.stop(true);
                 prompt("There is an existing model, '" + data.model.name + "', with the ID you supplied. Use this? (y/n) ", function(confirm) {
                     if (confirm && confirm.toLowerCase()[0] != "y") {
-                        // User doesn't want to use the existing model,
-                        // so force them to choose a new name
+                        // User doesn't want to use the existing model, so force them to choose a new name
                         modelPrompt(next);
                         return;
                     }
@@ -109,6 +115,7 @@ function modelPrompt(next) {
                 // so perhaps a name was supplied: compare it to the list of models
                 imp.getModels({ "name": val }, function(err, data) {
                     if (err) {
+                        spinner.stop(true);
                         console.log("ERROR: Could not get a list of your models from the impCloud");
                         return;
                     }
@@ -122,6 +129,7 @@ function modelPrompt(next) {
                         }
                     }
 
+                    spinner.stop(true);
                     if (foundMatch) {
                         // The user has supplied a name that already exists
                         prompt("There is an existing model, '" + data.models[i].name + "', with the ID you supplied. Use this? (y/n) ", function(confirm){
@@ -146,8 +154,10 @@ function modelPrompt(next) {
                                 return;
                             }
 
+                            if (!spinner.isSpinning()) spinner.start();
                             imp.createModel(val, function(err, data) {
                                 if (err) {
+                                    spinner.stop(true);
                                     console.log("ERROR: Could not create model '" + data.model.name + "'");
                                     return;
                                 }
@@ -168,8 +178,10 @@ function modelPrompt(next) {
 
 function newModelPrompt(next) {
     // We have a model name, parsed as 'program.title'
+    spinner.start();
     imp.getModels({ "name": program.title }, function(err, data) {
         if (err) {
+            spinner.stop(true);
             console.log("ERROR: Could not get a list of your models from the impCloud");
             return;
         }
@@ -185,6 +197,7 @@ function newModelPrompt(next) {
 
         if (foundMatch) {
             // The user has supplied a name that already exists
+            spinner.stop(true);
             prompt("You already have a model with the name '" + data.models[i].name + "'. Use this? (y/n) ", function(confirm) {
                 if (confirm && confirm.toLowerCase()[0] != "y") {
                     // User doesn't want to use the existing model, so get a new name
@@ -202,6 +215,7 @@ function newModelPrompt(next) {
             // create a new model with that name
             imp.createModel(program.title, function(err, data) {
                 if (err) {
+                    spinner.stop(true);
                     console.log("ERROR: Could not create model '" + program.title + "'");
                     return;
                 }
@@ -224,8 +238,10 @@ function getDevices(next) {
         return;
     }
 
+    if (!spinner.isSpinning()) spinner.start();
     imp.getDevices({ "model_id": modelId }, function(err, data) {
         if (err) {
+            spinner.stop(true);
             console.log("ERROR: Could not fetch a list of devices assigned to model '" + modelName + "'");
             next();
         }
@@ -243,6 +259,7 @@ function getDevices(next) {
         // Display number of devices (if any) associated with this model
         var devicesText = devices.length == 1 ? "device" : "devices";
         var devicesLen = devices.length == 0 ? "no" : devices.length;
+        spinner.stop(true);
         console.log("Found " + devicesLen + " " + devicesText + " associated with model '" + modelName + "'");
         next();
     });
@@ -278,6 +295,7 @@ function makeFiles() {
     var agentFile = config.getLocal("agentFile");
     var deviceFile = config.getLocal("deviceFile");
 
+    if (spinner.isSpinning()) spinner.stop(true);
     if (modelId != null) {
         if ("keep" in program && keep === true) {
             // Don't overwrite any saved code UNLESS files don't exist
@@ -316,9 +334,11 @@ function finalize() {
     var agentFile = config.getLocal("agentFile");
     var deviceFile = config.getLocal("deviceFile");
 
+    if (!spinner.isSpinning()) spinner.start();
     if (modelId != null) {
         imp.getModelRevisions(modelId, null, function(err, data) {
             if (err) {
+                spinner.stop(true);
                 console.log("ERROR: Could not fetch code revisions for model '" + modelName + "'");
                 return;
             }
@@ -330,6 +350,7 @@ function finalize() {
                         return;
                     }
 
+                    spinner.stop(true);
                     console.log("Model '" + modelName + "' initialized. To add a device run: 'imp devices -a <deviceID>'");
                 });
 
@@ -338,6 +359,7 @@ function finalize() {
 
             imp.getModelRevision(modelId, data.revisions[0].version, function(err, data) {
                 if (err) {
+                    spinner.stop(true);
                     console.log("ERROR: Could not fetch the latest build for model '" + modelName + "'");
                     return;
                 }
@@ -365,6 +387,7 @@ function finalize() {
                         return;
                     }
 
+                    spinner.stop(true);
                     console.log("Model '" + modelName + "' initialized. To add a device run: 'imp devices -a <deviceID>'");
                 });
             });
@@ -372,6 +395,7 @@ function finalize() {
     } else {
         imp.createModel(modelName, function(err, data) {
             if (err) {
+                spinner.stop(true);
                 console.log("ERROR: Could not create model");
                 return;
             }
@@ -387,6 +411,7 @@ function finalize() {
                     return;
                 }
 
+                spinner.stop(true);
                 console.log("Model '" + modelName + "' initialized. To add a device run: 'imp devices -a <deviceId>'");
             });
         });
