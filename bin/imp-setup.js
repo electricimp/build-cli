@@ -6,10 +6,9 @@
 
 var program = require("commander");
 var prompt = require("cli-prompt");
-
 var ImpConfig = require("../lib/impConfig.js");
-var config = new ImpConfig();
 
+var config = new ImpConfig();
 var imp;
 
 program
