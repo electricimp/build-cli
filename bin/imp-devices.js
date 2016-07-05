@@ -5,10 +5,13 @@ var prompt = require("cli-prompt");
 var Table = require("cli-table");
 var colors = require("colors");
 var fs = require("fs");
-
 var ImpConfig = require("../lib/impConfig.js");
+var Spinner = require("cli-spinner").Spinner;
+
 var config = new ImpConfig();
 var modelID = null;
+var spinner = new Spinner("Contacting the impCloud... %s");
+spinner.setSpinnerString(5);
 
 program
     .option("-a, --add <deviceID>", "Adds a device to the current model")
@@ -23,6 +26,8 @@ program
 program.parse(process.argv);
 
 function checkModelName(next) {
+    if (!spinner.isSpinning()) spinner.start();
+
     // User may have passed in a model ID or a model name - check which it is
     imp.getModel(program.model, function(err, data) {
         if (!err) {
@@ -35,6 +40,7 @@ function checkModelName(next) {
             // so perhaps a name was supplied: compare it to the list of models
             imp.getModels({ "name": program.model }, function(err, data) {
                 if (err) {
+                    spinner.stop(true);
                     console.log("ERROR: The name '" + program.model + "' does not match any of your current models");
                     return;
                 }
@@ -54,6 +60,7 @@ function checkModelName(next) {
                     next();
                 } else {
                     // The user has supplied a name that doesn't exist
+                    spinner.stop(true);
                     console.log("ERROR:  The name '" + program.model + "' does not match any of your current models");
                     return;
                 }
@@ -63,8 +70,10 @@ function checkModelName(next) {
 }
 
 function listModelDevices() {
+    if (!spinner.isSpinning()) spinner.start();
     imp.getDevices(null, function(err, data) {
         if (err) {
+            spinner.stop(true);
             console.log("ERROR: " + err.message_short);
             return;
         }
@@ -111,6 +120,7 @@ function listModelDevices() {
                 ]);
             });
 
+            spinner.stop(true);
             console.log(table.toString());
         } else {
             // Report that there are no found devices
@@ -118,14 +128,17 @@ function listModelDevices() {
 
             var message = "There are no devices assigned to model '" + program.model + "'";
             if (powerState) message = messge + " that are " + powerState;
+            spinner.stop(true);
             console.log(message);
         }
     });
 }
 
 function listDevices() {
+    if (!spinner.isSpinning()) spinner.start();
     imp.getDevices(null, function(err, data) {
         if (err) {
+            spinner.stop(true);
             console.log("ERROR: " + err.message_short);
             return;
         }
@@ -183,8 +196,11 @@ function listDevices() {
                 ]);
             })
 
+            spinner.stop(true);
             console.log(table.toString());
         } else {
+            spinner.stop(true);
+            
             // Report that there are no found devices
             if (data.devices.length == 0) {
                 // There are no devices assigned to the model at all
@@ -233,8 +249,10 @@ config.init(["apiKey"], function(err, success) {
             return;
         }
 
+        if (!spinner.isSpinning()) spinner.start();
         imp.assignDevice(program.add, config.get("modelId"), function(err, data) {
             if (err) {
+                spinner.stop(true);
                 console.log("ERROR: " + err.message_short);
                 return;
             }
@@ -250,13 +268,17 @@ config.init(["apiKey"], function(err, success) {
                 // Added device is not in the list of assigned devices so add it
                 devices.push(program.add);
                 config.saveLocalConfig(function(err) {
+                    spinner.stop(true);
+                    
                     if (err) {
                         console.log("ERROR: " + err);
                         return;
                     }
+                    
                     console.log("The device '" + program.add + "' is now assigned to model '" + modelName + "'");
                 });
             } else {
+                spinner.stop(true);
                 console.log("The device '" + program.add + "' is already assigned to model '" + modelName + "'");
             }
         });
@@ -290,14 +312,17 @@ config.init(["apiKey"], function(err, success) {
             return;
         }
 
+        if (!spinner.isSpinning()) spinner.start();
         imp.assignDevice(program.remove, null, function(err,data) {
             if (err) {
+                spinner.stop(true);
                 console.log("ERROR: " + err.message_short);
                 return;
             }
 
             devices.splice(index, 1);
             config.saveLocalConfig(function(err) {
+                spinner.stop(true);
                 if (err) {
                     console.log("ERROR: " + err);
                     return;
