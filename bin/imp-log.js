@@ -6,9 +6,12 @@ var program = require("commander");
 var prompt = require("cli-prompt");
 var colors = require("colors");
 var fs = require("fs");
-
+var Spinner = require("cli-spinner").Spinner;
 var ImpConfig = require("../lib/impConfig.js");
+
 var config = new ImpConfig();
+var spinner = new Spinner("Contacting the impCloud... %s");
+spinner.setSpinnerString(5);
 
 var messageFormat = {
     "agent.log":    { message: "[Agent]", color: colors.cyan },
@@ -71,7 +74,9 @@ function startLogStream(deviceID) {
 }
 
 function getLogs(deviceID) {
+    if (!spinner.isSpinning()) spinner.start();
     imp.getDeviceLogs(deviceID, null, function(err, data) {
+        spinner.stop(true);
         if (err) {
             console.log("ERROR: " + err.message_short);
             return;
@@ -90,6 +95,7 @@ function selectLogType(deviceID) {
         // User wants a log dump
         getLogs(deviceID);
     } else {
+        if (spinner.isSpinning()) spinner.stop(true);
         if ("title" in program) {
             console.log("Opening stream for device name '" + program.title + "'. Hit Ctrl-C to quit logging");
         } else {
@@ -110,8 +116,10 @@ config.init(["apiKey"], function(err, success) {
 
     if ("title" in program) {
         // Convert passed in device name to a device ID and then start logging
+        spinner.start();
         imp.getDevices(null, function(err, data) {
             if (err) {
+                spinner.stop(true);
                 console.log("ERROR: " + err.message_short);
                 return;
             }
@@ -122,6 +130,7 @@ config.init(["apiKey"], function(err, success) {
             });
 
             if (devId == null) {
+                spinner.stop(true);
                 console.log("ERROR: There is no device of name '" + program.title + "'");
                 return;
             }

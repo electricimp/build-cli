@@ -4,9 +4,12 @@
 
 var program = require("commander");
 var fs = require("fs");
-
+var Spinner = require("cli-spinner").Spinner;
 var ImpConfig = require("../lib/impConfig.js");
+
 var config = new ImpConfig();
+var spinner = new Spinner("Contacting the impCloud... %s");
+spinner.setSpinnerString(5);
 
 var imp;
 
@@ -21,6 +24,7 @@ function getVersion(ver, cb) {
 }
 
 function done(err, data) {
+    spinner.stop(true);
     if (err) {
         console.log("ERROR: " + err.message_short);
         return;
@@ -40,10 +44,11 @@ config.init(["apiKey", "modelId", "devices", "agentFile", "deviceFile"], functio
     }
 
     imp = config.createImpWithConfig();
-
+    spinner.start();
     if ("devices" in program) {
         imp.getDevices({ "model_id": config.get("modelId") }, function(err, data) {
             if (err) {
+                spinner.stop(true);
                 console.log("ERROR: " + err);
                 return;
             } else {
@@ -54,6 +59,7 @@ config.init(["apiKey", "modelId", "devices", "agentFile", "deviceFile"], functio
 
                 config.setLocal("devices", devices);
                 config.saveLocalConfig(function(err, success) {
+                    spinner.stop(true);
                     if (err) {
                         console.log("ERROR: " + err);
                         return;
@@ -70,6 +76,7 @@ config.init(["apiKey", "modelId", "devices", "agentFile", "deviceFile"], functio
         } else {
             imp.getModelRevisions(config.get("modelId"), null, function(err, data) {
                 if (err) {
+                    spinner.stop(true);
                     console.log("ERROR: " + err);
                     return;
                 }

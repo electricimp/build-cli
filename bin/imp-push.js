@@ -3,9 +3,12 @@
 var program = require("commander");
 var colors = require("colors");
 var fs = require("fs");
-
+var Spinner = require("cli-spinner").Spinner;
 var ImpConfig = require("../lib/impConfig.js");
+
 var config = new ImpConfig();
+var spinner = new Spinner("Contacting the impCloud... %s");
+spinner.setSpinnerString(5);
 
 program.parse(process.argv);
 
@@ -30,8 +33,10 @@ config.init(["apiKey", "modelId", "agentFile", "deviceFile",], function(err, suc
     model.device_code = fs.readFileSync(config.get("deviceFile"), "utf8");
 
     imp = config.createImpWithConfig();
+    if (!spinner.isSpinning()) spinner.start();
     imp.createModelRevision(config.get("modelId"), model, function(err, data) {
         if (err) {
+            spinner.stop(true);
             if (err.code != "CompileFailed") {
                 console.log(colors.red("ERROR: " + err.message_short));
                 return;
@@ -60,6 +65,7 @@ config.init(["apiKey", "modelId", "agentFile", "deviceFile",], function(err, suc
 
         // Now we have uploaded code, restart the model
         imp.restartModel(config.get("modelId"), function(err, restartData) {
+            spinner.stop(true);
             console.log("Uploaded the latest '" + config.getLocal("modelName") + "' code as build " + data.revision.version);
             if (err) {
                 console.log("WARNING: Could not restart the devices assigned to model '" + config.getLocal("modelName") + "'");
