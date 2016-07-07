@@ -49,7 +49,8 @@ For further information, including a more detailed guide to using *build-cli*, p
 
 ### 0.3.3
 
-- Add cli indicator to provide user with activity feedback during long server access calls.
+- Add spinning indicator to provide user with activity feedback during long server access calls.
+- Improved table colouring.
 
 ### 0.3.2
 
