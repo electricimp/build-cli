@@ -46,7 +46,7 @@ function formatDate(d) {
         return s.substr(s.length-size);
     };
 
-    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDay()) + " "
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + " "
         + pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds()) + " "
         + "UTC" + (d.getTimezoneOffset() / -60)
 }
