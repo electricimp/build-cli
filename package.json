@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ElectricImpSampleCode/build-cli.git"
+    "url": "git+https://github.com/electricimp/build-cli.git"
   },
   "keywords": [
     "electricimp",
@@ -30,9 +30,9 @@
     "test": "jasmine"
   },
   "bugs": {
-    "url": "https://github.com/ElectricImpSampleCode/build-cli/issues"
+    "url": "https://github.com/electricimp/build-cli/issues"
   },
-  "homepage": "https://github.com/ElectricImpSampleCode/build-cli",
+  "homepage": "https://github.com/electricimp/build-cli",
   "dependencies": {
     "cli-prompt": "^0.6.0",
     "cli-table": "^0.3.1",
