@@ -79,7 +79,9 @@ function getLogs(deviceID) {
         spinner.stop(true);
         if (err) {
             console.log("ERROR: " + err.message_short);
-            return;
+            return setTimeout(function() {
+                getLogs(deviceID);
+            }, 1000);
         }
 
         if ("logs" in data) {
