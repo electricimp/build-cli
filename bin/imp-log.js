@@ -62,7 +62,9 @@ function startLogStream(deviceID) {
     imp.streamDeviceLogs(deviceID, function(err, data) {
         if (err) {
             console.log("ERROR: " + err.message_short);
-            return;
+			return setTimeout(function() {
+				startLogStream(deviceID);
+			}, 1000);
         }
 
         if ("logs" in data) {
