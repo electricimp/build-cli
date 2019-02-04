@@ -1,3 +1,6 @@
+| :warning: The Electric Imp’s Build API is not supported anymore. Please use [impCentral API](https://apidoc.electricimp.com) and [impCentral impt](https://github.com/electricimp/imp-central-impt) instead. |
+| --- |
+
 # build-cli 0.3.5
 
 *build-cli* allows you to manage your Electric Imp development from a command line through Electric Imp’s [Build API](https://electricimp.com/docs/buildapi).
